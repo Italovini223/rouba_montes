@@ -34,6 +34,7 @@ cardDataProps *createNewCard(int value, int suit);
 int generateAChartValue();
 int generateChartSuit();
 int insertCardInDaeck(cardDataProps *card, deckOfCardsDataPros *deck);
+int cardAlreadyExistInDeck(deckOfCardsDataPros *deck, cardDataProps *newCard, int quantity);
 
 int main(){
   deckOfCardsDataPros *deck;
@@ -85,17 +86,21 @@ int main(){
 };
 
 deckOfCardsDataPros* createDecks(int quantity){
-  int suit, value, success;
+  int suit, value, success, cardAlreadyExist;
   cardDataProps *newCard;
   deckOfCardsDataPros *deck = (deckOfCardsDataPros *) malloc(sizeof(deckOfCardsDataPros));
 
   deck->first = NULL;
 
   for(int i = 1; i <= quantity; i++){
+    
     for(int j = 1; j <= 10; j++){
-      value = generateAChartValue();
-      suit = generateChartSuit();
-      newCard = createNewCard(value, suit);
+      do{
+        value = generateAChartValue();
+        suit = generateChartSuit();
+        newCard = createNewCard(value, suit);
+        cardAlreadyExist = cardAlreadyExistInDeck(deck, newCard, quantity);
+      }while(cardAlreadyExist == 1);
       success = insertCardInDaeck(newCard, deck);
     }
   }
@@ -133,10 +138,33 @@ cardDataProps *createNewCard(int value, int suit){
 };
 
 int insertCardInDaeck(cardDataProps *card, deckOfCardsDataPros *deck){
-
+  
   card->next = deck->first;
   deck->first = card;
 
   return 1;
 };
 
+int cardAlreadyExistInDeck(deckOfCardsDataPros *deck, cardDataProps *newCard, int quantity){
+  cardDataProps *aux = deck->first;
+  int numberOfCards = 0;
+  int cardAlreadyExist;
+
+  while(aux != NULL){
+    if(aux->value == newCard->value && aux->suit == newCard->suit){
+      numberOfCards++;
+    };
+
+
+    aux = aux->next;
+  }
+
+  if(numberOfCards >= quantity){
+    cardAlreadyExist = 1;
+  } else {
+    cardAlreadyExist = 0;
+  }
+
+  return cardAlreadyExist;
+  
+};
