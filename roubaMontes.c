@@ -1,6 +1,7 @@
 # include<stdio.h>
 #include<stdlib.h>
 #include<time.h>
+#include<string.h>
 
 /*
   SUit:
@@ -29,22 +30,59 @@ typedef struct deckOfCards {
    cardDataProps *first;
 } deckOfCardsDataPros;
 
+typedef struct player {
+   char name[10];
+    deckOfCardsDataPros *deck;
+    struct player *next;
+} playerDataProps;
+
+typedef struct PlayersList {
+    playerDataProps *first;
+} playerListDataProps;
+
 deckOfCardsDataPros* createDecks(int quantity);
-cardDataProps *createNewCard(int value, int suit);
+cardDataProps* createNewCard(int value, int suit);
 int generateAChartValue();
 int generateChartSuit();
 int insertCardInDaeck(cardDataProps *card, deckOfCardsDataPros *deck);
 int cardAlreadyExistInDeck(deckOfCardsDataPros *deck, cardDataProps *newCard, int quantity);
+int createNewPlayer(char name[], playerListDataProps *playersList);
+playerListDataProps* createAListOfPlayers();
+int insertNewPlayerInList(playerDataProps *newPlayer, playerListDataProps *playersList);
 
 int main(){
   deckOfCardsDataPros *deck;
+  playerListDataProps *playersList;
   cardDataProps *aux;
+  int quantity, success;
+  char playerName[10];
+
   deck = createDecks(1);
+  playersList = createAListOfPlayers();
+
+    
   aux = deck->first;
 
   srand(time(NULL));
 
-  while(aux != NULL){
+  printf("Digite a quantidade de jogadores: ");
+  scanf("%d", &quantity);
+
+  for(int i = 1; i <= quantity; i++){
+    printf("Digite o nome do jogador: ");
+    setbuf(stdin, NULL);
+    gets(playerName);
+    
+    success = createNewPlayer(playerName, playersList);
+
+    if(success ==  1){
+        printf("Jogador %s criado com sucesso!\n", playerName);
+    } else {
+        printf("erro!");
+    }
+  };
+
+  /* while(aux != NULL){
     switch(aux->suit){
       case 1:
         printf("Naipe: Paus\n");
@@ -80,6 +118,8 @@ int main(){
 
     aux = aux->next;
   };
+
+  */
 
   return 0;
 
@@ -167,4 +207,45 @@ int cardAlreadyExistInDeck(deckOfCardsDataPros *deck, cardDataProps *newCard, in
 
   return cardAlreadyExist;
   
+};
+
+int createNewPlayer(char name[], playerListDataProps *playersList){
+    int success;
+    playerDataProps *newPlayer = (playerDataProps*) malloc(sizeof(playerDataProps));
+    
+    strcpy(newPlayer->name, name);
+
+    newPlayer->deck->first = NULL;
+    newPlayer->next = NULL;
+
+    success = insertNewPlayerInList(newPlayer, playersList);
+
+    return success;
+};
+
+playerListDataProps* createAListOfPlayers(){
+    playerListDataProps *newList = (playerListDataProps*) malloc(sizeof(playerListDataProps));
+
+    newList->first = NULL;
+
+    return newList;
+};
+
+int insertNewPlayerInList(playerDataProps *newPlayer, playerListDataProps *playersList){
+    playerDataProps *aux = playersList->first;
+
+    if(playersList->first != NULL){
+        while(aux->next != playersList->first){
+            aux = aux->next;
+        }
+
+        newPlayer->next = playersList->first;
+        aux->next = newPlayer;
+
+    } else {
+        playersList->first = newPlayer;
+        newPlayer->next = newPlayer;
+    };
+
+    return 1;
 };
