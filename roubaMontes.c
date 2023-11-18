@@ -48,6 +48,7 @@ typedef struct discardList {
 deckOfCardsDataPros* createDecks(int quantity);
 cardDataProps* createNewCard(int value, int suit);
 discardListDataProps * createDiscardList();
+cardDataProps * getCardFromDiscard(discardListDataProps * discard, int CardValue);
 int generateAChartValue();
 int generateChartSuit();
 int insertCardInDaeck(cardDataProps *card, deckOfCardsDataPros *deck);
@@ -56,13 +57,18 @@ playerListDataProps* createAListOfPlayers();
 int insertNewPlayerInList(playerDataProps *newPlayer, playerListDataProps *playersList);
 cardDataProps* getCardFromDeck(deckOfCardsDataPros *deck);
 int shuffleDeck(deckOfCardsDataPros *deck, int quantity);
+int verifyCardExistInDiscard(cardDataProps *card, discardListDataProps *discard);
+int insertCardInDiscard(cardDataProps *card, discardListDataProps *discard);
+int insertCardInPalyerDeck(playerDataProps *player, cardDataProps *card);
 
 int main(){
   deckOfCardsDataPros *deck;
   playerListDataProps *playersList;
   discardListDataProps *discardList;
+  playerDataProps *currentPlayer;
   cardDataProps *card = (cardDataProps*) malloc(sizeof(playerDataProps));
-  int quantity, success;
+  cardDataProps *cardFromDiscart;
+  int quantity, success, playerQuantity, i =1, cardExistInDicard, option;
   char playerName[10];
 
   playersList = createAListOfPlayers();
@@ -74,18 +80,18 @@ int main(){
 
   do {
     printf("Digite a quantidade de jogadores: ");
-    scanf("%d", &quantity);
+    scanf("%d", &playerQuantity);
 
-    if(quantity < 1){
+    if(playerQuantity < 1){
       printf("Digite uma quantidade valida!");
       Sleep(2000);
       system("cls");
     }
-  }while(quantity < 1);
+  }while(playerQuantity < 1);
     
   system("cls");
 
-  for(int i = 1; i <= quantity; i++){
+  for(int i = 1; i <= playerQuantity; i++){
     printf("Digite o nome do jogador: ");
     setbuf(stdin, NULL);
     gets(playerName);
@@ -94,12 +100,12 @@ int main(){
 
     if(success ==  1){
         printf("Jogador %s criado com sucesso!\n", playerName);
+        Sleep(1000);
+        system("cls");
     } else {
         printf("erro!");
     }
   };
-
-  system("cls");
 
   printf("Digite a quantidade de baralhos: ");
   scanf("%d", &quantity);
@@ -128,6 +134,7 @@ int main(){
       default:
         break;
     };
+    
 
     Sleep(1000);
     system("cls");
@@ -141,6 +148,81 @@ int main(){
 
   Sleep(2000);
   system("cls");
+
+  currentPlayer = playersList->first;
+
+  while(deck->first != NULL){
+    card = getCardFromDeck(deck);
+
+    printf("JOGADOR %s SUA CARTA E: \n", currentPlayer->name);
+
+    if(success == 1){
+      printf("\n");
+      printf("CARTA RESGATADA: \n");
+      switch(card->suit){
+        case 1:
+          printf("Naipe: Paus\n");
+          break;
+        case 2:
+          printf("Naipe: Ouros\n");
+          break;
+        case 3:
+          printf("Naipe: Copas\n");
+          break;
+        case 4:
+          printf("Naipe: Espada\n");
+        default:
+          break;
+      };
+
+      switch(card->value){
+        case 11:
+          printf("Valor: Valete\n");
+          break;
+        case 12:
+          printf("Valor: Dama\n");
+          break; 
+        case 13:
+          printf("Valor: Rei\n");
+          break; 
+        default:
+          printf("Valor: %d\n", card->value);
+          break;
+      };
+
+      
+      cardExistInDicard = verifyCardExistInDiscard(card, discardList);
+
+      printf("CARTA EXISTE NO DISCARTE => %d\n", cardExistInDicard);
+
+      if(cardExistInDicard == 0){
+        success = insertCardInDiscard(card, discardList);
+      } else {
+        do{
+          printf("(1) pegar carta do discarte\n");
+          printf("Selecione sua opcao: ");
+          scanf("%d", &option);
+        }while(option != 1);
+
+        if(option == 1){
+         for(int i = 1; i<= cardExistInDicard; i++){
+          cardFromDiscart = getCardFromDiscard(discardList, card->value);
+          success = insertCardInPalyerDeck(currentPlayer, cardFromDiscart);
+
+          if(success == 1){
+            printf("Jogador %s carta adicionada ao seu monte\n", currentPlayer->name);
+          }
+         }
+        }
+      }
+
+      Sleep(2000);
+
+      currentPlayer = currentPlayer->next;
+      printf("I => %d\n", i);
+      i++;
+    };
+  }
 
 
 
@@ -304,8 +386,6 @@ cardDataProps* getCardFromDeck(deckOfCardsDataPros *deck){
     card = deck->first;
     deck->first = deck->first->next;
     card->next = NULL;
-
-    printf("CARD VALUE => %d\n",card->value);
   
   } else {
     card = NULL;
@@ -355,4 +435,70 @@ int shuffleDeck(deckOfCardsDataPros *deck, int quantity) {
  }
 
  return 1;
-}
+};
+
+int verifyCardExistInDiscard(cardDataProps *card, discardListDataProps *discard){
+  int cardExistInDiscard = 0; 
+  cardDataProps *discardCard = discard->first;
+
+  while(discardCard != NULL){
+    if(discardCard->value == card->value){
+      cardExistInDiscard++;
+    };
+
+    discardCard = discardCard->next;
+  };
+
+  return cardExistInDiscard;
+};
+
+int insertCardInDiscard(cardDataProps *card, discardListDataProps *discard){
+  int success = 1;
+  
+  cardDataProps *aux = discard->first;
+
+
+  if(discard->first == NULL){
+    card->next = discard->first;
+    discard->first = card;
+  } else {
+    while(aux->next != NULL){
+      aux = aux->next;
+    };
+    card->next = aux->next;
+    aux->next = card;
+  };
+
+  return success;
+  
+};
+
+cardDataProps * getCardFromDiscard(discardListDataProps * discard, int CardValue){
+  cardDataProps *current = discard->first;
+  cardDataProps *prev = discard->first;
+
+  while(current->value != CardValue){
+    prev = current;
+    current = current->next;
+  }
+
+  if(current = discard->first){
+    discard->first = current->next;
+  } else {
+    prev->next = current->next;
+    current->next = NULL; 
+  }
+
+  return current;
+
+};
+
+int insertCardInPalyerDeck(playerDataProps *player, cardDataProps *card){
+  
+  card->next = player->deck->first;
+  player->deck->first = card;
+
+  return 1;
+
+};
+
