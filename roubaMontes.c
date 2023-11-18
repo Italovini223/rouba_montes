@@ -38,11 +38,16 @@ typedef struct player {
 } playerDataProps;
 
 typedef struct PlayersList {
-    playerDataProps *first;
+  playerDataProps *first;
 } playerListDataProps;
+
+typedef struct discardList {
+  cardDataProps *first;
+} discardListDataProps;
 
 deckOfCardsDataPros* createDecks(int quantity);
 cardDataProps* createNewCard(int value, int suit);
+discardListDataProps * createDiscardList();
 int generateAChartValue();
 int generateChartSuit();
 int insertCardInDaeck(cardDataProps *card, deckOfCardsDataPros *deck);
@@ -55,18 +60,30 @@ int shuffleDeck(deckOfCardsDataPros *deck, int quantity);
 int main(){
   deckOfCardsDataPros *deck;
   playerListDataProps *playersList;
+  discardListDataProps *discardList;
   cardDataProps *card = (cardDataProps*) malloc(sizeof(playerDataProps));
   int quantity, success;
   char playerName[10];
 
   playersList = createAListOfPlayers();
+  discardList = createDiscardList();
 
   printf("Bem vindo ao rouba montes");
   Sleep(3000);
   system("cls");
+
+  do {
+    printf("Digite a quantidade de jogadores: ");
+    scanf("%d", &quantity);
+
+    if(quantity < 1){
+      printf("Digite uma quantidade valida!");
+      Sleep(2000);
+      system("cls");
+    }
+  }while(quantity < 1);
     
-  printf("Digite a quantidade de jogadores: ");
-  scanf("%d", &quantity);
+  system("cls");
 
   for(int i = 1; i <= quantity; i++){
     printf("Digite o nome do jogador: ");
@@ -188,6 +205,13 @@ deckOfCardsDataPros* createDecks(int quantity){
   }
 
   return deck;
+};
+
+discardListDataProps * createDiscardList(){
+  discardListDataProps * newDiscrdList = (discardListDataProps *)malloc(sizeof(discardListDataProps));
+  newDiscrdList->first = NULL;
+
+  return newDiscrdList;
 };
 
 
