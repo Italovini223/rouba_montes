@@ -54,18 +54,14 @@ int shuffleDeck(deckOfCardsDataPros *deck, int quantity);
 int main(){
   deckOfCardsDataPros *deck;
   playerListDataProps *playersList;
-  cardDataProps *aux;
   cardDataProps *card = (cardDataProps*) malloc(sizeof(playerDataProps));
-  int quantity, success, i = 1;
+  int quantity, success;
   char playerName[10];
 
-  deck = createDecks(1);
   playersList = createAListOfPlayers();
 
 
     
-  aux = deck->first;
-
   printf("Digite a quantidade de jogadores: ");
   scanf("%d", &quantity);
 
@@ -83,47 +79,15 @@ int main(){
     }
   };
 
+  printf("Digite a quantidade de baralhos: ");
+  scanf("%d", &quantity);
 
- while(aux != NULL){
-     switch(aux->suit){
-      case 1:
-        printf("Naipe: Paus\n");
-        break;
-      case 2:
-        printf("Naipe: Ouros\n");
-        break;
-      case 3:
-        printf("Naipe: Copas\n");
-        break;
-      case 4:
-        printf("Naipe: Espada\n");
-      default:
-        break;
-    };
-
-    switch(aux->value){
-      case 11:
-        printf("Valor: Valete\n");
-        break;
-      case 12:
-        printf("Valor: Dama\n");
-        break; 
-      case 13:
-        printf("Valor: Rei\n");
-        break; 
-      default:
-        printf("Valor: %d\n", aux->value);
-        break;
-    };
-
-    aux = aux->next;
-  } 
-
-  card = getCardFromDeck(deck);
-  card = getCardFromDeck(deck);
+  deck = createDecks(quantity);
 
 
-  if(success == 1){
+
+
+  /* if(success == 1){
     printf("\n");
     printf("CARTA RESGATADA: \n");
     switch(card->suit){
@@ -156,7 +120,7 @@ int main(){
         printf("Valor: %d\n", card->value);
         break;
     };
-  }
+  } */
 
   return 0;
 
@@ -298,7 +262,7 @@ int shuffleDeck(deckOfCardsDataPros *deck, int quantity) {
  cardDataProps *preview = deck->first;
 
  while (size > 1) {
-    i = (rand() % 51) + 1;
+    i = (rand() % (51 * quantity)) + (1 * quantity);
 
     current = deck->first;
     preview = deck->first;
