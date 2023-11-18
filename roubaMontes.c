@@ -2,6 +2,7 @@
 #include<stdlib.h>
 #include<time.h>
 #include<string.h>
+#include<windows.h>
 
 /*
   SUit:
@@ -60,7 +61,9 @@ int main(){
 
   playersList = createAListOfPlayers();
 
-
+  printf("Bem vindo ao rouba montes");
+  Sleep(3000);
+  system("cls");
     
   printf("Digite a quantidade de jogadores: ");
   scanf("%d", &quantity);
@@ -79,11 +82,48 @@ int main(){
     }
   };
 
+  system("cls");
+
   printf("Digite a quantidade de baralhos: ");
   scanf("%d", &quantity);
 
+  system("cls");
+
   deck = createDecks(quantity);
 
+  for(int i = 0; i < 5; i++){
+    switch(i){
+      case 1:
+        printf("CARREGANDO BARALHO.");
+        break;
+      case 2:
+        printf("CARREGANDO BARALHO..");
+        break;
+      case 3:
+        printf("CARREGANDO BARALHO...");
+        break;
+      case 4:
+        printf("CARREGANDO BARALHO....");
+        break;
+      case 5:
+        printf("CARREGANDO BARALHO.....");
+        break;
+      default:
+        break;
+    };
+
+    Sleep(1000);
+    system("cls");
+  }
+
+  if(quantity == 1){
+    printf("BARALHO CRIADO COM SUCESSO!");
+  } else {
+    printf("BARALHOS CRIADOS COM SUCESSO!");
+  }
+
+  Sleep(2000);
+  system("cls");
 
 
 
@@ -132,17 +172,19 @@ deckOfCardsDataPros* createDecks(int quantity){
   deckOfCardsDataPros *deck = (deckOfCardsDataPros *) malloc(sizeof(deckOfCardsDataPros));
   deck->first = NULL;
 
-  for(int i = 1; i <= 4; i++){
-    for(int j = 1; j <= 13; j++){
-      newCard = createNewCard(j, i);
-      success = insertCardInDaeck(newCard, deck);
+  for(int h = 1; h <= quantity; h++){
+    for(int i = 1; i <= 4; i++){
+      for(int j = 1; j <= 13; j++){
+        newCard = createNewCard(j, i);
+        success = insertCardInDaeck(newCard, deck);
+      }
     }
   }
 
 
+
   if(success == 1){
     success = shuffleDeck(deck, quantity);
-    printf("Baralho criado com sucesso!\n");
   }
 
   return deck;
