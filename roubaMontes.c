@@ -48,23 +48,23 @@ int insertCardInDaeck(cardDataProps *card, deckOfCardsDataPros *deck);
 int createNewPlayer(char name[], playerListDataProps *playersList);
 playerListDataProps* createAListOfPlayers();
 int insertNewPlayerInList(playerDataProps *newPlayer, playerListDataProps *playersList);
-int getCardFromDeck(cardDataProps *card, deckOfCardsDataPros *deck);
+cardDataProps* getCardFromDeck(deckOfCardsDataPros *deck);
 int shuffleDeck(deckOfCardsDataPros *deck, int quantity);
 
 int main(){
   deckOfCardsDataPros *deck;
   playerListDataProps *playersList;
   cardDataProps *aux;
+  cardDataProps *card = (cardDataProps*) malloc(sizeof(playerDataProps));
   int quantity, success, i = 1;
   char playerName[10];
 
   deck = createDecks(1);
   playersList = createAListOfPlayers();
 
+
     
   aux = deck->first;
-
-  srand(time(NULL));
 
   printf("Digite a quantidade de jogadores: ");
   scanf("%d", &quantity);
@@ -83,7 +83,6 @@ int main(){
     }
   };
 
-  success = getCardFromDeck(aux, deck);
 
  while(aux != NULL){
      switch(aux->suit){
@@ -117,12 +116,47 @@ int main(){
         break;
     };
 
-    printf("POSICAO %d\n", i);
-    printf("\n");
-
     aux = aux->next;
-    i++;
   } 
+
+  card = getCardFromDeck(deck);
+  card = getCardFromDeck(deck);
+
+
+  if(success == 1){
+    printf("\n");
+    printf("CARTA RESGATADA: \n");
+    switch(card->suit){
+      case 1:
+        printf("Naipe: Paus\n");
+        break;
+      case 2:
+        printf("Naipe: Ouros\n");
+        break;
+      case 3:
+        printf("Naipe: Copas\n");
+        break;
+      case 4:
+        printf("Naipe: Espada\n");
+      default:
+        break;
+    };
+
+    switch(card->value){
+      case 11:
+        printf("Valor: Valete\n");
+        break;
+      case 12:
+        printf("Valor: Dama\n");
+        break; 
+      case 13:
+        printf("Valor: Rei\n");
+        break; 
+      default:
+        printf("Valor: %d\n", card->value);
+        break;
+    };
+  }
 
   return 0;
 
@@ -233,25 +267,32 @@ int insertNewPlayerInList(playerDataProps *newPlayer, playerListDataProps *playe
     return 1;
 };
 
-int getCardFromDeck(cardDataProps *card, deckOfCardsDataPros *deck){
-  int success;
+cardDataProps* getCardFromDeck(deckOfCardsDataPros *deck){
+  cardDataProps *card;
 
   if(deck->first != NULL){
     card = deck->first;
-    deck->first = card->next;
+    deck->first = deck->first->next;
+    card->next = NULL;
 
-    success = 1;
+    printf("CARD VALUE => %d\n",card->value);
+  
   } else {
-    success = 0;
-  };
+    card = NULL;
+  }
 
-  return success;
+  
+ return card;
+
+
 };
 
 
 int shuffleDeck(deckOfCardsDataPros *deck, int quantity) {
  int size = 52 * quantity;
  int i, j;
+
+ srand(time(NULL));
 
  cardDataProps *current = deck->first;
  cardDataProps *preview = deck->first;
@@ -269,8 +310,6 @@ int shuffleDeck(deckOfCardsDataPros *deck, int quantity) {
       j++;
     } 
 
-    printf("ESCOLHIDA: \n valor => %d\n naipe => %d\n", current->value, current->suit);
-    printf(" I => %d\n",i);
 
     if(i > 1){
 
@@ -281,9 +320,6 @@ int shuffleDeck(deckOfCardsDataPros *deck, int quantity) {
       current->next = deck->first;
       deck->first = current;
     }
-
-    printf("PRIMEIRA: \n valor => %d\n naipe => %d\n", deck->first->value, deck->first->suit);
-    printf("SIZE => %d\n", size);
 
     size--;
  }
