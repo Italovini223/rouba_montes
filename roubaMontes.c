@@ -60,15 +60,18 @@ int shuffleDeck(deckOfCardsDataPros *deck, int quantity);
 int verifyCardExistInDiscard(cardDataProps *card, discardListDataProps *discard);
 int insertCardInDiscard(cardDataProps *card, discardListDataProps *discard);
 int insertCardInPalyerDeck(playerDataProps *player, cardDataProps *card);
+int verifyIfCardExistInPalyersDeck(playerDataProps *player, int cardValue, playerDataProps *playerWhoWillDonate);
+int getDeckFromAnotherPlayer(playerDataProps *playerWhoWillRecive, playerDataProps *playerWhoWillDonate);
 
 int main(){
   deckOfCardsDataPros *deck;
   playerListDataProps *playersList;
   discardListDataProps *discardList;
   playerDataProps *currentPlayer;
+  playerDataProps *auxPlayer;
   cardDataProps *card = (cardDataProps*) malloc(sizeof(playerDataProps));
   cardDataProps *cardFromDiscart;
-  int quantity, success, playerQuantity, i =1, cardExistInDicard, option;
+  int quantity, success, playerQuantity, i =1, cardExistInDicard, option, anotherPlayerHaveTheCard;
   char playerName[10];
 
   playersList = createAListOfPlayers();
@@ -153,6 +156,9 @@ int main(){
 
   while(deck->first != NULL){
     card = getCardFromDeck(deck);
+    auxPlayer = currentPlayer->next;
+
+    printf("\n AUX => %s \n", auxPlayer->name);
 
     printf("JOGADOR %s SUA CARTA E: \n", currentPlayer->name);
 
@@ -193,7 +199,28 @@ int main(){
       
       cardExistInDicard = verifyCardExistInDiscard(card, discardList);
 
-      printf("CARTA EXISTE NO DISCARTE => %d\n", cardExistInDicard);
+
+      anotherPlayerHaveTheCard = verifyIfCardExistInPalyersDeck(currentPlayer, card->value, auxPlayer);
+
+      if(anotherPlayerHaveTheCard == 1){
+        do{
+          printf("(1) pegar monte do jogador %s\n", auxPlayer->name);
+          printf("Selecione sua opcao: ");
+          scanf("%d", &option);
+        }while(option !=1);
+
+        if(option == 1){
+          success = getDeckFromAnotherPlayer(currentPlayer, auxPlayer);
+
+          if(success == 1){
+            printf("MONTE DO JOGADOR %s roubado com sucesso\n", auxPlayer->name);
+            Sleep(2000);
+            system("cls");
+          }
+        }
+      }
+
+      
 
       if(cardExistInDicard == 0){
         success = insertCardInDiscard(card, discardList);
@@ -218,10 +245,11 @@ int main(){
 
       Sleep(2000);
 
-      currentPlayer = currentPlayer->next;
       printf("I => %d\n", i);
       i++;
     };
+
+    currentPlayer = currentPlayer->next;
   }
 
 
@@ -502,3 +530,43 @@ int insertCardInPalyerDeck(playerDataProps *player, cardDataProps *card){
 
 };
 
+int verifyIfCardExistInPalyersDeck(playerDataProps *player,int cardValue, playerDataProps *playerWhoWillDonate){
+  playerDataProps *currentPlayer =  player->next;
+  int playerHaveTheCard = 0;
+
+  while(currentPlayer != player){
+    if(currentPlayer->deck->first != NULL){
+      if(currentPlayer->deck->first->value == cardValue){
+        printf("\n VALOR TOPO JOGADOR => %d\n",currentPlayer->deck->first->value);
+        printf("VALOR CARTA %d\n", cardValue);
+        playerHaveTheCard = 1;
+        break;
+      } 
+    }
+
+    currentPlayer = currentPlayer->next;
+
+  }
+
+  if(playerHaveTheCard == 1){
+    playerWhoWillDonate = currentPlayer;
+  };
+
+  return playerHaveTheCard;
+};
+
+
+int getDeckFromAnotherPlayer(playerDataProps *playerWhoWillRecive, playerDataProps *playerWhoWillDonate){
+  cardDataProps *aux = playerWhoWillDonate->deck->first;
+
+  while(playerWhoWillDonate->deck->first != NULL){
+    playerWhoWillDonate->deck->first = aux->next;
+
+    aux->next = playerWhoWillRecive->deck->first;
+    playerWhoWillRecive->deck->first = aux;
+
+    aux = playerWhoWillDonate->deck->first;
+  };
+
+  return 1;
+};
