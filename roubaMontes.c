@@ -65,12 +65,18 @@ int getDeckFromAnotherPlayer(playerDataProps *playerWhoWillRecive, playerDataPro
 
 int main(){
   deckOfCardsDataPros *deck;
+
   playerListDataProps *playersList;
-  discardListDataProps *discardList;
-  playerDataProps *currentPlayer;
   playerDataProps *auxPlayer;
+  playerDataProps *currentPlayer;
+
+  discardListDataProps *discardList;
+  cardDataProps *auxDiscardList;
+
   cardDataProps *card = (cardDataProps*) malloc(sizeof(playerDataProps));
   cardDataProps *cardFromDiscart;
+
+
   int quantity, success, playerQuantity, i =1, cardExistInDicard, option, anotherPlayerHaveTheCard;
   char playerName[10];
 
@@ -153,12 +159,10 @@ int main(){
   system("cls");
 
   currentPlayer = playersList->first;
+  auxPlayer = playersList->first;
 
   while(deck->first != NULL){
     card = getCardFromDeck(deck);
-    auxPlayer = currentPlayer->next;
-
-    printf("\n AUX => %s \n", auxPlayer->name);
 
     printf("JOGADOR %s SUA CARTA E: \n", currentPlayer->name);
 
@@ -183,23 +187,65 @@ int main(){
 
       switch(card->value){
         case 11:
-          printf("Valor: Valete\n");
+          printf("Valor: Valete\n\n");
           break;
         case 12:
-          printf("Valor: Dama\n");
+          printf("Valor: Dama\n\n");
           break; 
         case 13:
-          printf("Valor: Rei\n");
+          printf("Valor: Rei\n\n");
           break; 
         default:
-          printf("Valor: %d\n", card->value);
+          printf("Valor: %d\n\n", card->value);
           break;
       };
 
+      if(discardList->first != NULL){
+        auxDiscardList = discardList->first;
+
+        printf("\nINICIO LISTA DE DISCARTE\n");
+
+        while(auxDiscardList != NULL){
+          switch(auxDiscardList->suit){
+          case 1:
+            printf("Naipe: Paus\n");
+            break;
+          case 2:
+            printf("Naipe: Ouros\n");
+            break;
+          case 3:
+            printf("Naipe: Copas\n");
+            break;
+          case 4:
+            printf("Naipe: Espada\n");
+          default:
+            break;
+          };
+
+          switch(auxDiscardList->value){
+            case 11:
+              printf("Valor: Valete\n\n");
+            break;
+            case 12:
+              printf("Valor: Dama\n\n");
+             break; 
+            case 13:
+              printf("Valor: Rei\n\n");
+            break; 
+            default:
+              printf("Valor: %d\n\n", auxDiscardList->value);
+            break;
+          };
+
+          auxDiscardList = auxDiscardList->next;
+        }
+
+        printf("\n FIM DA LISTA DE DISCARTE\n");
+      };
+
+
       
       cardExistInDicard = verifyCardExistInDiscard(card, discardList);
-
-
       anotherPlayerHaveTheCard = verifyIfCardExistInPalyersDeck(currentPlayer, card->value, auxPlayer);
 
       if(anotherPlayerHaveTheCard == 1){
@@ -222,7 +268,7 @@ int main(){
 
       
 
-      if(cardExistInDicard == 0){
+      if(cardExistInDicard == 0 && anotherPlayerHaveTheCard == 0){
         success = insertCardInDiscard(card, discardList);
       } else {
         do{
@@ -243,9 +289,9 @@ int main(){
         }
       }
 
-      Sleep(2000);
+      Sleep(8000);
+      system("cls");
 
-      printf("I => %d\n", i);
       i++;
     };
 
@@ -480,46 +526,49 @@ int verifyCardExistInDiscard(cardDataProps *card, discardListDataProps *discard)
   return cardExistInDiscard;
 };
 
-int insertCardInDiscard(cardDataProps *card, discardListDataProps *discard){
+int insertCardInDiscard(cardDataProps *card, discardListDataProps *discard) {
   int success = 1;
-  
-  cardDataProps *aux = discard->first;
 
+  card->next = NULL;
 
-  if(discard->first == NULL){
-    card->next = discard->first;
+  if (discard->first == NULL) {
     discard->first = card;
   } else {
-    while(aux->next != NULL){
+    cardDataProps *aux = discard->first;
+    while (aux->next != NULL) {
       aux = aux->next;
-    };
-    card->next = aux->next;
+    }
     aux->next = card;
-  };
+  }
 
   return success;
-  
 };
 
-cardDataProps * getCardFromDiscard(discardListDataProps * discard, int CardValue){
-  cardDataProps *current = discard->first;
-  cardDataProps *prev = discard->first;
+cardDataProps* getCardFromDiscard(discardListDataProps* discard, int cardValue) {
+  cardDataProps* current = discard->first;
+  cardDataProps* prev = NULL;
 
-  while(current->value != CardValue){
+  while (current != NULL && current->value != cardValue) {
     prev = current;
     current = current->next;
   }
 
-  if(current = discard->first){
-    discard->first = current->next;
-  } else {
-    prev->next = current->next;
-    current->next = NULL; 
+  if (current != NULL) {
+    // A carta foi encontrada
+
+    if (prev == NULL) {
+      // A carta está no início da lista
+      discard->first = current->next;
+    } else {
+      prev->next = current->next;
+    }
+
+    current->next = NULL;
   }
 
   return current;
-
 };
+
 
 int insertCardInPalyerDeck(playerDataProps *player, cardDataProps *card){
   
