@@ -54,6 +54,7 @@ deckOfCardsDataPros *createDecks(int quantity);
 cardDataProps *createNewCard(int value, int suit);
 discardListDataProps *createDiscardList();
 cardDataProps *getCardFromDiscard(discardListDataProps *discard, int CardValue);
+
 int generateAChartValue();
 int generateChartSuit();
 int insertCardInDaeck(cardDataProps *card, deckOfCardsDataPros *deck);
@@ -65,8 +66,11 @@ int shuffleDeck(deckOfCardsDataPros *deck, int quantity);
 int verifyCardExistInDiscard(cardDataProps *card, discardListDataProps *discard);
 int insertCardInDiscard(cardDataProps *card, discardListDataProps *discard);
 int insertCardInPalyerDeck(playerDataProps *player, cardDataProps *card);
-int verifyIfCardExistInPalyersDeck(playerDataProps *player, int cardValue, playerDataProps *playerWhoWillDonate);
+int verifyIfCardExistInOtherPalyersDeck(playerDataProps *player, int cardValue, playerDataProps *playerWhoWillDonate);
 int getDeckFromAnotherPlayer(playerDataProps *playerWhoWillRecive, playerDataProps *playerWhoWillDonate);
+int verifyIfCardExistInPlayerDeck(playerDataProps *player, int cardValue);
+
+void printCard(cardDataProps *card);
 
 int main()
 {
@@ -82,7 +86,7 @@ int main()
   cardDataProps *card = (cardDataProps *)malloc(sizeof(playerDataProps));
   cardDataProps *cardFromDiscart;
 
-  int quantity, success, playerQuantity, i = 1, cardExistInDicard, option, anotherPlayerHaveTheCard;
+  int quantity, success, playerQuantity, i = 1, cardExistInDicard, option, anotherPlayerHaveTheCard, cardExistInPlayerDeck;
   char playerName[10];
 
   playersList = createAListOfPlayers();
@@ -182,64 +186,11 @@ int main()
 
     printf("JOGADOR %s SUA CARTA E: \n", currentPlayer->name);
 
-    if (success == 1)
+    if (success == 1) // verificar se e necessario 
     {
-      printf("\n");
-      printf("CARTA RESGATADA: \n");
+      printCard(card);
 
-      printf("+-----+\n|");
-
-      // Imprime o valor da carta
-      switch (card->value)
-      {
-      case 1:
-        printf("A    ");
-        break;
-      case 11:
-        printf("J    ");
-        break;
-      case 12:
-        printf("Q    ");
-        break;
-      case 13:
-        printf("K    ");
-        break;
-      default:
-        if (card->value == 10)
-        {
-          printf("%d   ", card->value);
-        }
-        else
-        {
-          printf("%d    ", card->value);
-        }
-        break;
-      }
-
-      printf("|\n| ");
-
-      // Imprime o naipe da carta com estilo
-      switch (card->suit)
-      {
-      case 1:
-        printf(" P");
-        break;
-      case 2:
-        printf(" O");
-        break;
-      case 3:
-        printf(" C");
-        break;
-      case 4:
-        printf(" E");
-        break;
-      default:
-        break;
-      };
-
-      printf("  |\n|     |\n+-----+\n");
-
-      if (discardList->first != NULL)
+      if (discardList->first != NULL) // IMPRIME A LISTA DE DISCARTE
       {
         auxDiscardList = discardList->first;
 
@@ -247,57 +198,7 @@ int main()
 
         while (auxDiscardList != NULL)
         {
-          printf("+-----+\n|");
-
-          // Imprime o valor da carta
-          switch (auxDiscardList->value)
-          {
-          case 1:
-            printf("A    ");
-            break;
-          case 11:
-            printf("J    ");
-            break;
-          case 12:
-            printf("Q    ");
-            break;
-          case 13:
-            printf("K    ");
-            break;
-          default:
-            if (auxDiscardList->value == 10)
-            {
-              printf("%d   ", auxDiscardList->value);
-            }
-            else
-            {
-              printf("%d    ", auxDiscardList->value);
-            }
-            break;
-          }
-
-          printf("|\n|");
-
-          // Imprime o naipe da carta com estilo
-          switch (auxDiscardList->suit)
-          {
-          case 1:
-            printf("  P");
-            break;
-          case 2:
-            printf("  O");
-            break;
-          case 3:
-            printf("  C");
-            break;
-          case 4:
-            printf("  E");
-            break;
-          default:
-            break;
-          }
-
-          printf("  |\n|     |\n+-----+\n");
+          printCard(auxDiscardList);
 
           auxDiscardList = auxDiscardList->next;
         }
@@ -305,10 +206,100 @@ int main()
         printf("\n FIM DA LISTA DE DISCARTE\n");
       };
 
-      cardExistInDicard = verifyCardExistInDiscard(card, discardList);
-      anotherPlayerHaveTheCard = verifyIfCardExistInPalyersDeck(currentPlayer, card->value, auxPlayer);
+      if(currentPlayer->deck->first != NULL){ // IMPRIME A CARTA NO TOPO DO JOGADOR ATUAL
+        printf("SUA CARTA NO TOPO: \n");
+        printCard(currentPlayer->deck->first);
+      }
 
-      if (anotherPlayerHaveTheCard == 1)
+      auxPlayer = currentPlayer->next;
+
+      while(auxPlayer != currentPlayer){ // IMPRIME O TOPO DO MONTE DE CADA JOGADOR 
+        if(auxPlayer->deck->first != NULL){ //SO IMPRIME SE ESTIVER CARTA NO TOPO
+          printf("TOPO DO MONTE DO JOGADOR %s", auxPlayer->name);
+          printCard(auxPlayer->deck->first);
+        }
+        auxPlayer = auxPlayer->next;
+      }
+
+      cardExistInDicard = verifyCardExistInDiscard(card, discardList);
+
+      if(cardExistInDicard != 0){
+        do
+        {
+          printf("(1) pegar carta do discarte\n");
+          printf("Selecione sua opcao: ");
+          scanf("%d", &option);
+        } while (option != 1);
+
+        if (option == 1)
+        {
+          for (int i = 1; i <= cardExistInDicard; i++)
+          {
+            cardFromDiscart = getCardFromDiscard(discardList, card->value);
+            success = insertCardInPalyerDeck(currentPlayer, cardFromDiscart);
+            success = insertCardInPalyerDeck(currentPlayer, card);
+
+            if (success == 1)
+            {
+              printf("Jogador %s carta adicionada ao seu monte\n", currentPlayer->name);
+            }
+          }
+        }
+
+      } else if(verifyIfCardExistInOtherPalyersDeck(currentPlayer, card->value, auxPlayer)){
+        do
+        {
+          printf("(1) pegar monte do jogador %s\n", auxPlayer->name);
+          printf("Selecione sua opcao: ");
+          scanf("%d", &option);
+        } while (option != 1);
+
+        if(option == 1)
+        {
+          success = getDeckFromAnotherPlayer(currentPlayer, auxPlayer);
+          success = insertCardInPalyerDeck(currentPlayer, card);
+
+          if (success == 1)
+          {
+            printf("MONTE DO JOGADOR %s roubado com sucesso\n", auxPlayer->name);
+ 
+          }
+        }
+
+      } else if(verifyIfCardExistInPlayerDeck(currentPlayer, card->value)){
+        do
+        {
+          printf("Sua carta do topo e igual a carta que voce tirou! \n");
+          printf("(1) INSERIR CARTA NO SEU MONTE");
+          printf("Selecione sua opcao: ");
+          scanf("%d", &option);
+        } while (option != 1);
+
+        if(option == 1){
+          success = insertCardInPalyerDeck(currentPlayer, card);
+
+          if(success == 1){
+            printf("CARTA INSERIDA COM SUCESSO!\n");
+          }
+        }
+
+  
+
+      } else {
+        printf("Nao e possivel fazer nada com sua carta, ela foi inserida no discarte!\n");
+        insertCardInDiscard(card, discardList);
+        currentPlayer = currentPlayer->next;
+      }
+
+      Sleep(2000);
+      system("cls");
+
+
+      /*
+       cardExistInDicard = verifyCardExistInDiscard(card, discardList);
+      anotherPlayerHaveTheCard = verifyIfCardExistInOtherPalyersDeck(currentPlayer, card->value, auxPlayer);
+
+      if (anotherPlayerHaveTheCard == 1) // da pra mudar essa logica 
       {
         do
         {
@@ -320,6 +311,7 @@ int main()
         if (option == 1)
         {
           success = getDeckFromAnotherPlayer(currentPlayer, auxPlayer);
+          success = insertCardInPalyerDeck(currentPlayer, card);
 
           if (success == 1)
           {
@@ -362,9 +354,11 @@ int main()
       system("cls");
 
       i++;
+      */
+
+     
     };
 
-    currentPlayer = currentPlayer->next;
   }
 
   /* if(success == 1){
@@ -667,7 +661,7 @@ int insertCardInPalyerDeck(playerDataProps *player, cardDataProps *card)
   return 1;
 };
 
-int verifyIfCardExistInPalyersDeck(playerDataProps *player, int cardValue, playerDataProps *playerWhoWillDonate)
+int verifyIfCardExistInOtherPalyersDeck(playerDataProps *player, int cardValue, playerDataProps *playerWhoWillDonate)
 {
   playerDataProps *currentPlayer = player->next;
   int playerHaveTheCard = 0;
@@ -702,13 +696,84 @@ int getDeckFromAnotherPlayer(playerDataProps *playerWhoWillRecive, playerDataPro
 
   while (playerWhoWillDonate->deck->first != NULL)
   {
-    playerWhoWillDonate->deck->first = aux->next;
+    playerWhoWillDonate->deck->first = aux->next; // topo de cartas de quem vai doar recebe o proximo
 
-    aux->next = playerWhoWillRecive->deck->first;
-    playerWhoWillRecive->deck->first = aux;
+    aux->next = playerWhoWillRecive->deck->first; //aux proximo recebe o topo das cartas de quem ira receber
+    playerWhoWillRecive->deck->first = aux; // topo de quem do jogador que ira receber recebe o aux
 
-    aux = playerWhoWillDonate->deck->first;
+    aux = playerWhoWillDonate->deck->first; //aux recebe o topo das cartas do jogador que ira doar para que o processo se repita
   };
 
   return 1;
+};
+
+void printCard(cardDataProps *card){
+   printf("\n");
+      printf("+-----+\n|");
+
+      // Imprime o valor da carta
+      switch (card->value)
+      {
+      case 1:
+        printf("A    ");
+        break;
+      case 11:
+        printf("J    ");
+        break;
+      case 12:
+        printf("Q    ");
+        break;
+      case 13:
+        printf("K    ");
+        break;
+      default:
+        if (card->value == 10)
+        {
+          printf("%d   ", card->value);
+        }
+        else
+        {
+          printf("%d    ", card->value);
+        }
+        break;
+      }
+
+      printf("|\n| ");
+
+      // Imprime o naipe da carta com estilo
+      switch (card->suit)
+      {
+      case 1:
+        printf(" P");
+        break;
+      case 2:
+        printf(" O");
+        break;
+      case 3:
+        printf(" C");
+        break;
+      case 4:
+        printf(" E");
+        break;
+      default:
+        break;
+      };
+
+      printf("  |\n|     |\n+-----+\n");
+};
+
+int verifyIfCardExistInPlayerDeck(playerDataProps *player, int cardValue){ //VERIFICA SE A CARTA NO TOPO DO MONTE DO JOGADOR E IGUAL A CARTA QUE ELE TIROU
+  int cardExist;
+
+  if(player->deck->first != NULL){
+    if(player->deck->first->value == cardValue){
+      cardExist = 1;
+    } else {
+      cardExist = 0;
+    }
+  } else {
+    cardExist = 0;
+  }
+
+  return cardExist;
 };
