@@ -31,6 +31,7 @@ typedef struct card
 typedef struct deckOfCards
 {
   cardDataProps *first;
+  int quantity;
 } deckOfCardsDataPros;
 
 typedef struct player
@@ -55,8 +56,7 @@ cardDataProps *createNewCard(int value, int suit);
 discardListDataProps *createDiscardList();
 cardDataProps *getCardFromDiscard(discardListDataProps *discard, int CardValue);
 
-int generateAChartValue();
-int generateChartSuit();
+
 int insertCardInDaeck(cardDataProps *card, deckOfCardsDataPros *deck);
 int createNewPlayer(char name[], playerListDataProps *playersList);
 playerListDataProps *createAListOfPlayers();
@@ -71,6 +71,9 @@ int getDeckFromAnotherPlayer(playerDataProps *playerWhoWillRecive, playerDataPro
 int verifyIfCardExistInPlayerDeck(playerDataProps *player, int cardValue);
 
 void printCard(cardDataProps *card);
+void orderWinnerList(playerDataProps *winnerList, playerListDataProps *playersList, int quantity);
+void interleave(playerDataProps vector[], int size);
+void mergeSort(playerDataProps vector[], int size);
 
 int main()
 {
@@ -79,6 +82,7 @@ int main()
   playerListDataProps *playersList;
   playerDataProps *auxPlayer;
   playerDataProps *currentPlayer;
+  playerDataProps *listOfWinners;
 
   discardListDataProps *discardList;
   cardDataProps *auxDiscardList;
@@ -86,7 +90,7 @@ int main()
   cardDataProps *card = (cardDataProps *)malloc(sizeof(playerDataProps));
   cardDataProps *cardFromDiscart;
 
-  int quantity, success, playerQuantity, i = 1, cardExistInDicard, option, anotherPlayerHaveTheCard, cardExistInPlayerDeck;
+  int quantity, success, playerQuantity, cardExistInDicard, option;
   char playerName[10];
 
   playersList = createAListOfPlayers();
@@ -184,11 +188,15 @@ int main()
   {
     card = getCardFromDeck(deck);
 
+    printf("QUANTIDADE DE CARTAS NO BARALHO: %d\n", deck->quantity);
+
     printf("JOGADOR %s SUA CARTA E: \n", currentPlayer->name);
 
     if (success == 1) // verificar se e necessario 
     {
       printCard(card);
+
+      printf("VOCE TEM %d NO SEU MONTE\n", currentPlayer->deck->quantity); // MOSTRA A QUANTIDADE DE CARTAS O JOGADOR TEM NO SEU MONTE
 
       if (discardList->first != NULL) // IMPRIME A LISTA DE DISCARTE
       {
@@ -286,7 +294,8 @@ int main()
   
 
       } else {
-        printf("Nao e possivel fazer nada com sua carta, ela foi inserida no discarte!\n");
+        printf("Nao e possivel fazer nada com sua carta, ela foi inserida no discarte, pressione qualquer tecla para continuar o jogo!\n");
+        scanf("%d", &option);
         insertCardInDiscard(card, discardList);
         currentPlayer = currentPlayer->next;
       }
@@ -294,107 +303,23 @@ int main()
       Sleep(2000);
       system("cls");
 
-
-      /*
-       cardExistInDicard = verifyCardExistInDiscard(card, discardList);
-      anotherPlayerHaveTheCard = verifyIfCardExistInOtherPalyersDeck(currentPlayer, card->value, auxPlayer);
-
-      if (anotherPlayerHaveTheCard == 1) // da pra mudar essa logica 
-      {
-        do
-        {
-          printf("(1) pegar monte do jogador %s\n", auxPlayer->name);
-          printf("Selecione sua opcao: ");
-          scanf("%d", &option);
-        } while (option != 1);
-
-        if (option == 1)
-        {
-          success = getDeckFromAnotherPlayer(currentPlayer, auxPlayer);
-          success = insertCardInPalyerDeck(currentPlayer, card);
-
-          if (success == 1)
-          {
-            printf("MONTE DO JOGADOR %s roubado com sucesso\n", auxPlayer->name);
-            Sleep(2000);
-            system("cls");
-          }
-        }
-      }
-
-      if (cardExistInDicard == 0)
-      {
-        success = insertCardInDiscard(card, discardList);
-      }
-      else
-      {
-        do
-        {
-          printf("(1) pegar carta do discarte\n");
-          printf("Selecione sua opcao: ");
-          scanf("%d", &option);
-        } while (option != 1);
-
-        if (option == 1)
-        {
-          for (int i = 1; i <= cardExistInDicard; i++)
-          {
-            cardFromDiscart = getCardFromDiscard(discardList, card->value);
-            success = insertCardInPalyerDeck(currentPlayer, cardFromDiscart);
-
-            if (success == 1)
-            {
-              printf("Jogador %s carta adicionada ao seu monte\n", currentPlayer->name);
-            }
-          }
-        }
-      }
-
-      Sleep(8000);
-      system("cls");
-
-      i++;
-      */
-
-     
     };
 
   }
 
-  /* if(success == 1){
-    printf("\n");
-    printf("CARTA RESGATADA: \n");
-    switch(card->suit){
-      case 1:
-        printf("Naipe: Paus\n");
-        break;
-      case 2:
-        printf("Naipe: Ouros\n");
-        break;
-      case 3:
-        printf("Naipe: Copas\n");
-        break;
-      case 4:
-        printf("Naipe: Espada\n");
-      default:
-        break;
-    };
+  listOfWinners = (playerDataProps*)malloc(playerQuantity * sizeof(playerDataProps));
+  orderWinnerList(listOfWinners, playersList, playerQuantity);
 
-    switch(card->value){
-      case 11:
-        printf("Valor: Valete\n");
-        break;
-      case 12:
-        printf("Valor: Dama\n");
-        break;
-      case 13:
-        printf("Valor: Rei\n");
-        break;
-      default:
-        printf("Valor: %d\n", card->value);
-        break;
-    };
-  } */
+  printf("Ranking de jodadores: \n");
+
+  for(int i = 0; i < playerQuantity; i++){
+    printf("POSICAO %d: ", i+1);
+    printf("Nome : %s\n", listOfWinners[i].name);
+    printf("Quantidade final de cartas: %d", listOfWinners[i].deck->quantity);
+
+    printf("\n");
+  }
+
 
   return 0;
 };
@@ -405,6 +330,7 @@ deckOfCardsDataPros *createDecks(int quantity)
   cardDataProps *newCard;
   deckOfCardsDataPros *deck = (deckOfCardsDataPros *)malloc(sizeof(deckOfCardsDataPros));
   deck->first = NULL;
+  deck->quantity = 0;
 
   for (int h = 1; h <= quantity; h++)
   {
@@ -434,22 +360,6 @@ discardListDataProps *createDiscardList()
   return newDiscrdList;
 };
 
-int generateAChartValue()
-{
-  int value;
-  value = (rand() % 12) + 1;
-
-  return value;
-};
-
-int generateChartSuit()
-{
-  int value;
-
-  value = (rand() % 3) + 1;
-
-  return value;
-};
 
 cardDataProps *createNewCard(int value, int suit)
 {
@@ -468,6 +378,8 @@ int insertCardInDaeck(cardDataProps *card, deckOfCardsDataPros *deck)
   card->next = deck->first;
   deck->first = card;
 
+  deck->quantity++;
+
   return 1;
 };
 
@@ -482,6 +394,7 @@ int createNewPlayer(char name[], playerListDataProps *playersList)
 
   newPlayer->deck->first = NULL;
   newPlayer->next = NULL;
+  newPlayer->deck->quantity = 0;
 
   success = insertNewPlayerInList(newPlayer, playersList);
 
@@ -529,6 +442,7 @@ cardDataProps *getCardFromDeck(deckOfCardsDataPros *deck)
     card = deck->first;
     deck->first = deck->first->next;
     card->next = NULL;
+    deck->quantity--;
   }
   else
   {
@@ -658,6 +572,8 @@ int insertCardInPalyerDeck(playerDataProps *player, cardDataProps *card)
   card->next = player->deck->first;
   player->deck->first = card;
 
+  player->deck->quantity++;
+
   return 1;
 };
 
@@ -703,6 +619,8 @@ int getDeckFromAnotherPlayer(playerDataProps *playerWhoWillRecive, playerDataPro
 
     aux = playerWhoWillDonate->deck->first; //aux recebe o topo das cartas do jogador que ira doar para que o processo se repita
   };
+
+  playerWhoWillDonate->deck->first = 0;
 
   return 1;
 };
@@ -776,4 +694,64 @@ int verifyIfCardExistInPlayerDeck(playerDataProps *player, int cardValue){ //VER
   }
 
   return cardExist;
+};
+
+void orderWinnerList(playerDataProps winnerList[], playerListDataProps *playersList, int quantity){
+  playerDataProps *auxPlayer = playersList->first;
+
+  for(int i = 0; i < quantity; i++){
+    winnerList[i] = *auxPlayer;
+    auxPlayer = auxPlayer->next;
+  };
+
+  mergeSort(winnerList, quantity);
+
+};
+
+void interleave(playerDataProps vector[], int size) {
+    int i, j, k;
+    playerDataProps *aux = (int*)malloc(size * sizeof(playerDataProps));
+    int mid = size / 2;
+    i = 0;
+    j = mid;
+    k = 0;
+
+    while (i < mid && j < size) {
+        if (vector[i].deck->quantity < vector[j].deck->quantity) {
+            aux[k] = vector[i];
+            i++;
+        } else {
+            aux[k] = vector[j];
+            j++;
+        }
+        k++;
+    }
+
+    while (i < mid) {
+        aux[k] = vector[i];
+        i++;
+        k++;
+    }
+
+    while (j < size) {
+        aux[k] = vector[j];
+        j++;
+        k++;
+    }
+
+    for (int m = 0; m < size; m++) {
+        vector[m] = aux[m];
+    }
+
+    free(aux);  // Liberar a memória alocada para aux
+};
+
+void mergeSort(playerDataProps vector[], int size){
+    int mid;
+    if(size > 1){
+        mid = size / 2;
+        mergeSort(vector, mid);
+        mergeSort(vector + mid, size - mid);
+        interleave(vector, size);
+    }
 };
