@@ -66,7 +66,7 @@ int shuffleDeck(deckOfCardsDataPros *deck, int quantity);
 int verifyCardExistInDiscard(cardDataProps *card, discardListDataProps *discard);
 int insertCardInDiscard(cardDataProps *card, discardListDataProps *discard);
 int insertCardInPalyerDeck(playerDataProps *player, cardDataProps *card);
-int verifyIfCardExistInOtherPalyersDeck(playerDataProps *player, int cardValue, playerDataProps *playerWhoWillDonate);
+playerDataProps* verifyIfCardExistInOtherPalyersDeck(playerDataProps *player, int cardValue, int *result);
 int getDeckFromAnotherPlayer(playerDataProps *playerWhoWillRecive, playerDataProps *playerWhoWillDonate);
 int verifyIfCardExistInPlayerDeck(playerDataProps *player, int cardValue);
 
@@ -95,7 +95,7 @@ int main()
   cardDataProps *cardFromDiscart;
   cardDataProps *winnerRankingCardList;
 
-  int quantity, success, playerQuantity, cardExistInDicard, option;
+  int quantity, success, playerQuantity, cardExistInDicard, option, anotherPlayerHaveTheCard;
   char playerName[10];
 
   playersList = createAListOfPlayers();
@@ -188,7 +188,7 @@ int main()
 
   currentPlayer = playersList->first;
   auxPlayer = playersList->first;
-  playerWhoWillDonateCards = playersList->first;
+  playerWhoWillDonateCards = (playerDataProps*)malloc(sizeof(playerDataProps));
 
   while (deck->first != NULL)
   {
@@ -236,6 +236,7 @@ int main()
       }
 
       cardExistInDicard = verifyCardExistInDiscard(card, discardList);
+      playerWhoWillDonateCards = verifyIfCardExistInOtherPalyersDeck(currentPlayer, card->value, &anotherPlayerHaveTheCard);
 
       if(cardExistInDicard != 0){
         do
@@ -260,7 +261,7 @@ int main()
           }
         }
 
-      } else if(verifyIfCardExistInOtherPalyersDeck(currentPlayer, card->value, playerWhoWillDonateCards)){
+      } else if(anotherPlayerHaveTheCard == 1){
         do
         {
           printf("(1) pegar monte do jogador %s\n", playerWhoWillDonateCards->name);
@@ -598,10 +599,10 @@ int insertCardInPalyerDeck(playerDataProps *player, cardDataProps *card)
   return 1;
 };
 
-int verifyIfCardExistInOtherPalyersDeck(playerDataProps *player, int cardValue, playerDataProps *playerWhoWillDonate)
+playerDataProps* verifyIfCardExistInOtherPalyersDeck(playerDataProps *player, int cardValue, int *result)
 {
   playerDataProps *currentPlayer = player->next;
-  int playerHaveTheCard = 0;
+  *result = 0;
 
   while(currentPlayer != player)
   {
@@ -609,22 +610,17 @@ int verifyIfCardExistInOtherPalyersDeck(playerDataProps *player, int cardValue, 
     {
       if(currentPlayer->deck->first->value == cardValue)
       {
-        playerHaveTheCard = 1;
+        *result = 1;
       } 
     }
-    if(playerHaveTheCard == 1){
+    if(*result == 1){
       break;
     } else {
       currentPlayer = currentPlayer->next;
     }
   }
 
-  if (playerHaveTheCard == 1)
-  {
-    playerWhoWillDonate = currentPlayer;
-  };
-
-  return playerHaveTheCard;
+  return currentPlayer;
 };
 
 int getDeckFromAnotherPlayer(playerDataProps *playerWhoWillRecive, playerDataProps *playerWhoWillDonate)
@@ -637,6 +633,7 @@ int getDeckFromAnotherPlayer(playerDataProps *playerWhoWillRecive, playerDataPro
 
     aux->next = playerWhoWillRecive->deck->first; //aux proximo recebe o topo das cartas de quem ira receber
     playerWhoWillRecive->deck->first = aux; // topo de quem do jogador que ira receber recebe o aux
+    playerWhoWillRecive->deck->quantity++;
 
     aux = playerWhoWillDonate->deck->first; //aux recebe o topo das cartas do jogador que ira doar para que o processo se repita
   };
@@ -731,7 +728,7 @@ void orderWinnerList(playerDataProps *winnerList, playerListDataProps *playersLi
 
 void interleavePlayers(playerDataProps vector[], int size) {
     int i, j, k;
-    playerDataProps *aux = (int*)malloc(size * sizeof(playerDataProps));
+    playerDataProps *aux = (playerDataProps*)malloc(size * sizeof(playerDataProps));
     int mid = size / 2;
     i = 0;
     j = mid;
@@ -779,7 +776,7 @@ void mergeSortPlayers(playerDataProps vector[], int size){
 
 void interleaveWinnerPlayerCards(cardDataProps vector[], int size) {
     int i, j, k;
-    cardDataProps *aux = (int*)malloc(size * sizeof(cardDataProps));
+    cardDataProps *aux = (cardDataProps*)malloc(size * sizeof(cardDataProps));
     int mid = size / 2;
     i = 0;
     j = mid;
