@@ -603,20 +603,20 @@ int verifyIfCardExistInOtherPalyersDeck(playerDataProps *player, int cardValue, 
   playerDataProps *currentPlayer = player->next;
   int playerHaveTheCard = 0;
 
-  while (currentPlayer != player)
+  while(currentPlayer != player)
   {
-    if (currentPlayer->deck->first != NULL)
+    if(currentPlayer->deck->first != NULL)
     {
-      if (currentPlayer->deck->first->value == cardValue)
+      if(currentPlayer->deck->first->value == cardValue)
       {
-        printf("\n VALOR TOPO JOGADOR => %d\n", currentPlayer->deck->first->value);
-        printf("VALOR CARTA %d\n", cardValue);
         playerHaveTheCard = 1;
-        break;
-      }
+      } 
     }
-
-    currentPlayer = currentPlayer->next;
+    if(playerHaveTheCard == 1){
+      break;
+    } else {
+      currentPlayer = currentPlayer->next;
+    }
   }
 
   if (playerHaveTheCard == 1)
@@ -641,7 +641,7 @@ int getDeckFromAnotherPlayer(playerDataProps *playerWhoWillRecive, playerDataPro
     aux = playerWhoWillDonate->deck->first; //aux recebe o topo das cartas do jogador que ira doar para que o processo se repita
   };
 
-  playerWhoWillDonate->deck->first = 0;
+  playerWhoWillDonate->deck->quantity = 0;
 
   return 1;
 };
