@@ -84,6 +84,7 @@ int main()
 
   playerListDataProps *playersList;
   playerDataProps *auxPlayer;
+  playerDataProps *playerWhoWillDonateCards;
   playerDataProps *currentPlayer;
   playerDataProps *listOfWinners;
 
@@ -187,6 +188,7 @@ int main()
 
   currentPlayer = playersList->first;
   auxPlayer = playersList->first;
+  playerWhoWillDonateCards = playersList->first;
 
   while (deck->first != NULL)
   {
@@ -258,22 +260,22 @@ int main()
           }
         }
 
-      } else if(verifyIfCardExistInOtherPalyersDeck(currentPlayer, card->value, auxPlayer)){
+      } else if(verifyIfCardExistInOtherPalyersDeck(currentPlayer, card->value, playerWhoWillDonateCards)){
         do
         {
-          printf("(1) pegar monte do jogador %s\n", auxPlayer->name);
+          printf("(1) pegar monte do jogador %s\n", playerWhoWillDonateCards->name);
           printf("Selecione sua opcao: ");
           scanf("%d", &option);
         } while (option != 1);
 
         if(option == 1)
         {
-          success = getDeckFromAnotherPlayer(currentPlayer, auxPlayer);
+          success = getDeckFromAnotherPlayer(currentPlayer, playerWhoWillDonateCards);
           success = insertCardInPalyerDeck(currentPlayer, card);
 
           if (success == 1)
           {
-            printf("MONTE DO JOGADOR %s roubado com sucesso\n", auxPlayer->name);
+            printf("MONTE DO JOGADOR %s roubado com sucesso\n", playerWhoWillDonateCards->name);
  
           }
         }
