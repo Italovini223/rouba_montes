@@ -72,8 +72,11 @@ int verifyIfCardExistInPlayerDeck(playerDataProps *player, int cardValue);
 
 void printCard(cardDataProps *card);
 void orderWinnerList(playerDataProps *winnerList, playerListDataProps *playersList, int quantity);
-void interleave(playerDataProps vector[], int size);
-void mergeSort(playerDataProps vector[], int size);
+void interleavePlayers(playerDataProps vector[], int size);
+void mergeSortPlayers(playerDataProps vector[], int size);
+void mergeSortWinnerPlayerCards(cardDataProps vector[], int size);
+void interleaveWinnerPlayerCards(cardDataProps vector[], int size);
+void orderWinnerPlayersCards(playerDataProps vector[], cardDataProps cardVector[], int size);
 
 int main()
 {
@@ -89,6 +92,7 @@ int main()
 
   cardDataProps *card = (cardDataProps *)malloc(sizeof(playerDataProps));
   cardDataProps *cardFromDiscart;
+  cardDataProps *winnerRankingCardList;
 
   int quantity, success, playerQuantity, cardExistInDicard, option;
   char playerName[10];
@@ -312,7 +316,7 @@ int main()
 
   printf("Ranking de jodadores: \n");
 
-  for(int i = 0; i < playerQuantity; i++){
+  for(int i = 0; i < playerQuantity; i++){ // IMPRIME O RANKING DE JOGADORES
     printf("POSICAO %d: ", i+1);
     printf("Nome : %s\n", listOfWinners[i].name);
     printf("Quantidade final de cartas: %d", listOfWinners[i].deck->quantity);
@@ -320,6 +324,21 @@ int main()
     printf("\n");
   }
 
+  winnerRankingCardList = (cardDataProps*)malloc(listOfWinners[0].deck->quantity * sizeof(cardDataProps)); // aloca memoria para a quantidade de cartas do primeiro colocado do ranking
+
+  for(int i = 0; i < playerQuantity; i++){
+    if(listOfWinners[i].deck->quantity == listOfWinners[0].deck->quantity){
+      orderWinnerPlayersCards(listOfWinners, winnerRankingCardList, listOfWinners[0].deck->quantity);
+
+      printf("CARTAS DO JOGADOR %s ORDENADAS: \n", listOfWinners[i].name);
+      for(int j = 0; j < listOfWinners[i].deck->quantity; j++){
+        printCard(&winnerRankingCardList[i]);
+      }
+
+      printf("\n\n");
+    }
+  }
+  
 
   return 0;
 };
@@ -696,7 +715,7 @@ int verifyIfCardExistInPlayerDeck(playerDataProps *player, int cardValue){ //VER
   return cardExist;
 };
 
-void orderWinnerList(playerDataProps winnerList[], playerListDataProps *playersList, int quantity){
+void orderWinnerList(playerDataProps *winnerList, playerListDataProps *playersList, int quantity){
   playerDataProps *auxPlayer = playersList->first;
 
   for(int i = 0; i < quantity; i++){
@@ -704,11 +723,11 @@ void orderWinnerList(playerDataProps winnerList[], playerListDataProps *playersL
     auxPlayer = auxPlayer->next;
   };
 
-  mergeSort(winnerList, quantity);
+  mergeSortPlayers(winnerList, quantity);
 
 };
 
-void interleave(playerDataProps vector[], int size) {
+void interleavePlayers(playerDataProps vector[], int size) {
     int i, j, k;
     playerDataProps *aux = (int*)malloc(size * sizeof(playerDataProps));
     int mid = size / 2;
@@ -746,12 +765,71 @@ void interleave(playerDataProps vector[], int size) {
     free(aux);  // Liberar a memória alocada para aux
 };
 
-void mergeSort(playerDataProps vector[], int size){
+void mergeSortPlayers(playerDataProps vector[], int size){
     int mid;
     if(size > 1){
         mid = size / 2;
-        mergeSort(vector, mid);
-        mergeSort(vector + mid, size - mid);
-        interleave(vector, size);
+        mergeSortPlayers(vector, mid);
+        mergeSortPlayers(vector + mid, size - mid);
+        interleavePlayers(vector, size);
     }
+};
+
+void interleaveWinnerPlayerCards(cardDataProps vector[], int size) {
+    int i, j, k;
+    cardDataProps *aux = (int*)malloc(size * sizeof(cardDataProps));
+    int mid = size / 2;
+    i = 0;
+    j = mid;
+    k = 0;
+
+    while (i < mid && j < size) {
+        if (vector[i].value < vector[j].value) {
+            aux[k] = vector[i];
+            i++;
+        } else {
+            aux[k] = vector[j];
+            j++;
+        }
+        k++;
+    }
+
+    while (i < mid) {
+        aux[k] = vector[i];
+        i++;
+        k++;
+    }
+
+    while (j < size) {
+        aux[k] = vector[j];
+        j++;
+        k++;
+    }
+
+    for (int m = 0; m < size; m++) {
+        vector[m] = aux[m];
+    }
+
+    free(aux);  // Liberar a memória alocada para aux
+};
+
+void mergeSortWinnerPlayerCards(cardDataProps vector[], int size){
+    int mid;
+    if(size > 1){
+        mid = size / 2;
+        mergeSortWinnerPlayerCards(vector, mid);
+        mergeSortWinnerPlayerCards(vector + mid, size - mid);
+        interleaveWinnerPlayerCards(vector, size);
+    }
+};
+
+void orderWinnerPlayersCards(playerDataProps vector[], cardDataProps cardVector[], int size){
+  cardDataProps *auxCard = vector[0].deck->first;
+
+  for(int i = 0; i < size; i++){
+    cardVector[i] = *auxCard;
+    auxCard = auxCard->next;
+  }
+
+  mergeSortWinnerPlayerCards(cardVector, size);
 };
