@@ -56,7 +56,6 @@ cardDataProps *createNewCard(int value, int suit);
 discardListDataProps *createDiscardList();
 cardDataProps *getCardFromDiscard(discardListDataProps *discard, int CardValue);
 
-
 int insertCardInDaeck(cardDataProps *card, deckOfCardsDataPros *deck);
 int createNewPlayer(char name[], playerListDataProps *playersList);
 playerListDataProps *createAListOfPlayers();
@@ -66,23 +65,23 @@ int shuffleDeck(deckOfCardsDataPros *deck, int quantity);
 int verifyCardExistInDiscard(cardDataProps *card, discardListDataProps *discard);
 int insertCardInDiscard(cardDataProps *card, discardListDataProps *discard);
 int insertCardInPalyerDeck(playerDataProps *player, cardDataProps *card);
-playerDataProps* verifyIfCardExistInOtherPalyersDeck(playerDataProps *player, int cardValue, int *result);
+playerDataProps *verifyIfCardExistInOtherPalyersDeck(playerDataProps *player, int cardValue, int *result);
 int getDeckFromAnotherPlayer(playerDataProps *playerWhoWillRecive, playerDataProps *playerWhoWillDonate);
 int verifyIfCardExistInPlayerDeck(playerDataProps *player, int cardValue);
 
 void printCard(cardDataProps *card);
 void orderWinnerList(playerDataProps *winnerList, playerListDataProps *playersList, int quantity);
-void interleavePlayers(playerDataProps vector[], int size);
-void mergeSortPlayers(playerDataProps vector[], int size);
-void mergeSortWinnerPlayerCards(cardDataProps vector[], int size);
-void interleaveWinnerPlayerCards(cardDataProps vector[], int size);
-void orderWinnerPlayersCards(playerDataProps vector[], cardDataProps cardVector[], int size);
+
+void insertionSortWinnerPlayerCards(cardDataProps winnerCards[], int size);
+void inserStackOfCardsInWinnerRankingCardList(playerDataProps winnerPlayer, cardDataProps winnerRankingCardList[]);
+
 
 int main()
 {
   deckOfCardsDataPros *deck;
 
   playerListDataProps *playersList;
+
   playerDataProps *auxPlayer;
   playerDataProps *playerWhoWillDonateCards;
   playerDataProps *currentPlayer;
@@ -99,6 +98,7 @@ int main()
   char playerName[10];
 
   playersList = createAListOfPlayers();
+
   discardList = createDiscardList();
 
   printf("Bem vindo ao rouba montes");
@@ -188,7 +188,7 @@ int main()
 
   currentPlayer = playersList->first;
   auxPlayer = playersList->first;
-  playerWhoWillDonateCards = (playerDataProps*)malloc(sizeof(playerDataProps));
+  playerWhoWillDonateCards = (playerDataProps *)malloc(sizeof(playerDataProps));
 
   while (deck->first != NULL)
   {
@@ -198,7 +198,7 @@ int main()
 
     printf("JOGADOR %s SUA CARTA E: \n", currentPlayer->name);
 
-    if (success == 1) // verificar se e necessario 
+    if (success == 1) // verificar se e necessario
     {
       printCard(card);
 
@@ -220,15 +220,18 @@ int main()
         printf("\n FIM DA LISTA DE DISCARTE\n");
       };
 
-      if(currentPlayer->deck->first != NULL){ // IMPRIME A CARTA NO TOPO DO JOGADOR ATUAL
+      if (currentPlayer->deck->first != NULL)
+      { // IMPRIME A CARTA NO TOPO DO JOGADOR ATUAL
         printf("SUA CARTA NO TOPO: \n");
         printCard(currentPlayer->deck->first);
       }
 
       auxPlayer = currentPlayer->next;
 
-      while(auxPlayer != currentPlayer){ // IMPRIME O TOPO DO MONTE DE CADA JOGADOR 
-        if(auxPlayer->deck->first != NULL){ //SO IMPRIME SE ESTIVER CARTA NO TOPO
+      while (auxPlayer != currentPlayer)
+      { // IMPRIME O TOPO DO MONTE DE CADA JOGADOR
+        if (auxPlayer->deck->first != NULL)
+        { // SO IMPRIME SE ESTIVER CARTA NO TOPO
           printf("TOPO DO MONTE DO JOGADOR %s", auxPlayer->name);
           printCard(auxPlayer->deck->first);
         }
@@ -238,7 +241,8 @@ int main()
       cardExistInDicard = verifyCardExistInDiscard(card, discardList);
       playerWhoWillDonateCards = verifyIfCardExistInOtherPalyersDeck(currentPlayer, card->value, &anotherPlayerHaveTheCard);
 
-      if(cardExistInDicard != 0){
+      if (cardExistInDicard != 0)
+      {
         do
         {
           printf("(1) pegar carta do discarte\n");
@@ -260,8 +264,9 @@ int main()
             }
           }
         }
-
-      } else if(anotherPlayerHaveTheCard == 1){
+      }
+      else if (anotherPlayerHaveTheCard == 1)
+      {
         do
         {
           printf("(1) pegar monte do jogador %s\n", playerWhoWillDonateCards->name);
@@ -269,7 +274,7 @@ int main()
           scanf("%d", &option);
         } while (option != 1);
 
-        if(option == 1)
+        if (option == 1)
         {
           success = getDeckFromAnotherPlayer(currentPlayer, playerWhoWillDonateCards);
           success = insertCardInPalyerDeck(currentPlayer, card);
@@ -277,11 +282,11 @@ int main()
           if (success == 1)
           {
             printf("MONTE DO JOGADOR %s roubado com sucesso\n", playerWhoWillDonateCards->name);
- 
           }
         }
-
-      } else if(verifyIfCardExistInPlayerDeck(currentPlayer, card->value)){
+      }
+      else if (verifyIfCardExistInPlayerDeck(currentPlayer, card->value))
+      {
         do
         {
           printf("Sua carta do topo e igual a carta que voce tirou! \n");
@@ -290,17 +295,18 @@ int main()
           scanf("%d", &option);
         } while (option != 1);
 
-        if(option == 1){
+        if (option == 1)
+        {
           success = insertCardInPalyerDeck(currentPlayer, card);
 
-          if(success == 1){
+          if (success == 1)
+          {
             printf("CARTA INSERIDA COM SUCESSO!\n");
           }
         }
-
-  
-
-      } else {
+      }
+      else
+      {
         printf("Nao e possivel fazer nada com sua carta, ela foi inserida no discarte, pressione qualquer tecla para continuar o jogo!\n");
         scanf("%d", &option);
         insertCardInDiscard(card, discardList);
@@ -309,39 +315,40 @@ int main()
 
       Sleep(2000);
       system("cls");
-
     };
-
   }
 
-  listOfWinners = (playerDataProps*)malloc(playerQuantity * sizeof(playerDataProps));
+  listOfWinners = (playerDataProps *)malloc(playerQuantity * sizeof(playerDataProps));
   orderWinnerList(listOfWinners, playersList, playerQuantity);
 
   printf("Ranking de jodadores: \n");
 
-  for(int i = 0; i < playerQuantity; i++){ // IMPRIME O RANKING DE JOGADORES
-    printf("POSICAO %d: ", i+1);
+  for (int i = 0; i < playerQuantity; i++)
+  { // IMPRIME O RANKING DE JOGADORES
+    printf("POSICAO %d: ", i + 1);
     printf("Nome : %s\n", listOfWinners[i].name);
     printf("Quantidade final de cartas: %d", listOfWinners[i].deck->quantity);
 
     printf("\n");
   }
 
-  winnerRankingCardList = (cardDataProps*)malloc(listOfWinners[0].deck->quantity * sizeof(cardDataProps)); // aloca memoria para a quantidade de cartas do primeiro colocado do ranking
+  winnerRankingCardList = (cardDataProps *)malloc(listOfWinners[0].deck->quantity * sizeof(cardDataProps)); // aloca memoria para a quantidade de cartas do primeiro colocado do ranking
 
-  for(int i = 0; i < playerQuantity; i++){
-    if(listOfWinners[i].deck->quantity == listOfWinners[0].deck->quantity){
-      orderWinnerPlayersCards(listOfWinners, winnerRankingCardList, listOfWinners[0].deck->quantity);
-
+  for (int i = 0; i <= playerQuantity; i++)
+  {
+    if (listOfWinners[i].deck->quantity == listOfWinners[0].deck->quantity)
+    {
+      inserStackOfCardsInWinnerRankingCardList(listOfWinners[i], winnerRankingCardList); // ADICIONA AS CARTAS DO JOGADOR AO VETOR E LA DENTRO ORDENA AS CARTAS DE ACORDO COM SEU VALOR
+      
       printf("CARTAS DO JOGADOR %s ORDENADAS: \n", listOfWinners[i].name);
-      for(int j = 0; j < listOfWinners[i].deck->quantity; j++){
+      for (int j = 0; j < listOfWinners[i].deck->quantity; j++)
+      {
         printCard(&winnerRankingCardList[i]);
       }
 
       printf("\n\n");
     }
   }
-  
 
   return 0;
 };
@@ -381,7 +388,6 @@ discardListDataProps *createDiscardList()
 
   return newDiscrdList;
 };
-
 
 cardDataProps *createNewCard(int value, int suit)
 {
@@ -599,23 +605,26 @@ int insertCardInPalyerDeck(playerDataProps *player, cardDataProps *card)
   return 1;
 };
 
-playerDataProps* verifyIfCardExistInOtherPalyersDeck(playerDataProps *player, int cardValue, int *result)
+playerDataProps *verifyIfCardExistInOtherPalyersDeck(playerDataProps *player, int cardValue, int *result)
 {
   playerDataProps *currentPlayer = player->next;
   *result = 0;
 
-  while(currentPlayer != player)
+  while (currentPlayer != player)
   {
-    if(currentPlayer->deck->first != NULL)
+    if (currentPlayer->deck->first != NULL)
     {
-      if(currentPlayer->deck->first->value == cardValue)
+      if (currentPlayer->deck->first->value == cardValue)
       {
         *result = 1;
-      } 
+      }
     }
-    if(*result == 1){
+    if (*result == 1)
+    {
       break;
-    } else {
+    }
+    else
+    {
       currentPlayer = currentPlayer->next;
     }
   }
@@ -631,11 +640,11 @@ int getDeckFromAnotherPlayer(playerDataProps *playerWhoWillRecive, playerDataPro
   {
     playerWhoWillDonate->deck->first = aux->next; // topo de cartas de quem vai doar recebe o proximo
 
-    aux->next = playerWhoWillRecive->deck->first; //aux proximo recebe o topo das cartas de quem ira receber
-    playerWhoWillRecive->deck->first = aux; // topo de quem do jogador que ira receber recebe o aux
+    aux->next = playerWhoWillRecive->deck->first; // aux proximo recebe o topo das cartas de quem ira receber
+    playerWhoWillRecive->deck->first = aux;       // topo de quem do jogador que ira receber recebe o aux
     playerWhoWillRecive->deck->quantity++;
 
-    aux = playerWhoWillDonate->deck->first; //aux recebe o topo das cartas do jogador que ira doar para que o processo se repita
+    aux = playerWhoWillDonate->deck->first; // aux recebe o topo das cartas do jogador que ira doar para que o processo se repita
   };
 
   playerWhoWillDonate->deck->quantity = 0;
@@ -643,192 +652,145 @@ int getDeckFromAnotherPlayer(playerDataProps *playerWhoWillRecive, playerDataPro
   return 1;
 };
 
-void printCard(cardDataProps *card){
-   printf("\n");
-      printf("+-----+\n|");
+void printCard(cardDataProps *card)
+{
+  printf("\n");
+  printf("+-----+\n|");
 
-      // Imprime o valor da carta
-      switch (card->value)
-      {
-      case 1:
-        printf("A    ");
-        break;
-      case 11:
-        printf("J    ");
-        break;
-      case 12:
-        printf("Q    ");
-        break;
-      case 13:
-        printf("K    ");
-        break;
-      default:
-        if (card->value == 10)
-        {
-          printf("%d   ", card->value);
-        }
-        else
-        {
-          printf("%d    ", card->value);
-        }
-        break;
-      }
+  // Imprime o valor da carta
+  switch (card->value)
+  {
+  case 1:
+    printf("A    ");
+    break;
+  case 11:
+    printf("J    ");
+    break;
+  case 12:
+    printf("Q    ");
+    break;
+  case 13:
+    printf("K    ");
+    break;
+  default:
+    if (card->value == 10)
+    {
+      printf("%d   ", card->value);
+    }
+    else
+    {
+      printf("%d    ", card->value);
+    }
+    break;
+  }
 
-      printf("|\n| ");
+  printf("|\n| ");
 
-      // Imprime o naipe da carta com estilo
-      switch (card->suit)
-      {
-      case 1:
-        printf(" P");
-        break;
-      case 2:
-        printf(" O");
-        break;
-      case 3:
-        printf(" C");
-        break;
-      case 4:
-        printf(" E");
-        break;
-      default:
-        break;
-      };
+  // Imprime o naipe da carta com estilo
+  switch (card->suit)
+  {
+  case 1:
+    printf(" P");
+    break;
+  case 2:
+    printf(" O");
+    break;
+  case 3:
+    printf(" C");
+    break;
+  case 4:
+    printf(" E");
+    break;
+  default:
+    break;
+  };
 
-      printf("  |\n|     |\n+-----+\n");
+  printf("  |\n|     |\n+-----+\n");
 };
 
-int verifyIfCardExistInPlayerDeck(playerDataProps *player, int cardValue){ //VERIFICA SE A CARTA NO TOPO DO MONTE DO JOGADOR E IGUAL A CARTA QUE ELE TIROU
+int verifyIfCardExistInPlayerDeck(playerDataProps *player, int cardValue)
+{ // VERIFICA SE A CARTA NO TOPO DO MONTE DO JOGADOR E IGUAL A CARTA QUE ELE TIROU
   int cardExist;
 
-  if(player->deck->first != NULL){
-    if(player->deck->first->value == cardValue){
+  if (player->deck->first != NULL)
+  {
+    if (player->deck->first->value == cardValue)
+    {
       cardExist = 1;
-    } else {
+    }
+    else
+    {
       cardExist = 0;
     }
-  } else {
+  }
+  else
+  {
     cardExist = 0;
   }
 
   return cardExist;
 };
 
-void orderWinnerList(playerDataProps *winnerList, playerListDataProps *playersList, int quantity){
+void insertionSortPlayersRanking(playerDataProps vector[], int size){
+  playerDataProps aux; 
+  int i, j;
+
+  for (i = 1; i < size; i++) {  // Correção no loop
+    aux = vector[i];
+    j = i - 1;
+    
+    // Correção na condição do while
+    while (j >= 0 && aux.deck->quantity > vector[j].deck->quantity) {
+      vector[j + 1] = vector[j];
+      j--;
+    }
+
+    vector[j + 1] = aux;
+  }
+}
+
+
+void orderWinnerList(playerDataProps *winnerList, playerListDataProps *playersList, int quantity)
+{
   playerDataProps *auxPlayer = playersList->first;
 
-  for(int i = 0; i < quantity; i++){
+  for (int i = 0; i < quantity; i++)
+  {
     winnerList[i] = *auxPlayer;
     auxPlayer = auxPlayer->next;
-  };
-
-  mergeSortPlayers(winnerList, quantity);
-
-};
-
-void interleavePlayers(playerDataProps vector[], int size) {
-    int i, j, k;
-    playerDataProps *aux = (playerDataProps*)malloc(size * sizeof(playerDataProps));
-    int mid = size / 2;
-    i = 0;
-    j = mid;
-    k = 0;
-
-    while (i < mid && j < size) {
-        if (vector[i].deck->quantity < vector[j].deck->quantity) {
-            aux[k] = vector[i];
-            i++;
-        } else {
-            aux[k] = vector[j];
-            j++;
-        }
-        k++;
-    }
-
-    while (i < mid) {
-        aux[k] = vector[i];
-        i++;
-        k++;
-    }
-
-    while (j < size) {
-        aux[k] = vector[j];
-        j++;
-        k++;
-    }
-
-    for (int m = 0; m < size; m++) {
-        vector[m] = aux[m];
-    }
-
-    free(aux);  // Liberar a memória alocada para aux
-};
-
-void mergeSortPlayers(playerDataProps vector[], int size){
-    int mid;
-    if(size > 1){
-        mid = size / 2;
-        mergeSortPlayers(vector, mid);
-        mergeSortPlayers(vector + mid, size - mid);
-        interleavePlayers(vector, size);
-    }
-};
-
-void interleaveWinnerPlayerCards(cardDataProps vector[], int size) {
-    int i, j, k;
-    cardDataProps *aux = (cardDataProps*)malloc(size * sizeof(cardDataProps));
-    int mid = size / 2;
-    i = 0;
-    j = mid;
-    k = 0;
-
-    while (i < mid && j < size) {
-        if (vector[i].value < vector[j].value) {
-            aux[k] = vector[i];
-            i++;
-        } else {
-            aux[k] = vector[j];
-            j++;
-        }
-        k++;
-    }
-
-    while (i < mid) {
-        aux[k] = vector[i];
-        i++;
-        k++;
-    }
-
-    while (j < size) {
-        aux[k] = vector[j];
-        j++;
-        k++;
-    }
-
-    for (int m = 0; m < size; m++) {
-        vector[m] = aux[m];
-    }
-
-    free(aux);  // Liberar a memória alocada para aux
-};
-
-void mergeSortWinnerPlayerCards(cardDataProps vector[], int size){
-    int mid;
-    if(size > 1){
-        mid = size / 2;
-        mergeSortWinnerPlayerCards(vector, mid);
-        mergeSortWinnerPlayerCards(vector + mid, size - mid);
-        interleaveWinnerPlayerCards(vector, size);
-    }
-};
-
-void orderWinnerPlayersCards(playerDataProps vector[], cardDataProps cardVector[], int size){
-  cardDataProps *auxCard = vector[0].deck->first;
-
-  for(int i = 0; i < size; i++){
-    cardVector[i] = *auxCard;
-    auxCard = auxCard->next;
+    winnerList[i].next = NULL;
   }
 
-  mergeSortWinnerPlayerCards(cardVector, size);
+  insertionSortPlayersRanking(winnerList, quantity);
+};
+
+void insertionSortWinnerPlayerCards(cardDataProps winnerCards[], int size){
+  cardDataProps aux;
+  int i, j;
+
+  for(i = 1; i < size; i++){  // Corrigido para i < size
+    aux = winnerCards[i];
+    j = i - 1;
+    while(j >= 0 && aux.value < winnerCards[j].value){
+      winnerCards[j + 1] = winnerCards[j];
+      j--;
+    }
+    winnerCards[j + 1] = aux;
+  }
+}
+
+
+void inserStackOfCardsInWinnerRankingCardList(playerDataProps winnerPlayer, cardDataProps winnerRankingCardList[]){
+  cardDataProps *aux = winnerPlayer.deck->first;
+  int i = 0;
+
+  while (aux != NULL && i < winnerPlayer.deck->quantity) {
+    winnerRankingCardList[i] = *aux;
+    aux = aux->next;
+    winnerRankingCardList[i].next = NULL; // Certifique-se de que o próximo seja nulo no vetor
+    i++;
+  }
+
+  insertionSortWinnerPlayerCards(winnerRankingCardList, winnerPlayer.deck->quantity); // ORDENA O VETOR DE CARTAS DO JOGADOR VENCEDOR
+
 };
