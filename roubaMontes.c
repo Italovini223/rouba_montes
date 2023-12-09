@@ -492,7 +492,7 @@ int shuffleDeck(deckOfCardsDataPros *deck, int quantity)
 
   while (size > 1)
   {
-    i = (rand() % (51 * quantity)) + (1 * quantity);
+    i = (rand() % (51 * quantity)) + (1 * quantity); // sorteia um numero aleatorio 
 
     current = deck->first;
     preview = deck->first;
@@ -503,7 +503,7 @@ int shuffleDeck(deckOfCardsDataPros *deck, int quantity)
       preview = current;
       current = current->next;
       j++;
-    }
+    } // percorre a pilha ate achar a carta que esta na posicao sorteada 
 
     if (i > 1)
     {
