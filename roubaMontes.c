@@ -51,29 +51,49 @@ typedef struct discardList
   cardDataProps *first;
 } discardListDataProps;
 
-deckOfCardsDataPros *createDecks(int quantity);
-cardDataProps *createNewCard(int value, int suit);
-discardListDataProps *createDiscardList();
-cardDataProps *getCardFromDiscard(discardListDataProps *discard, int CardValue);
+deckOfCardsDataPros *createDecks(int quantity); // cria o baralho;
 
-int insertCardInDaeck(cardDataProps *card, deckOfCardsDataPros *deck);
-int createNewPlayer(char name[], playerListDataProps *playersList);
-playerListDataProps *createAListOfPlayers();
-int insertNewPlayerInList(playerDataProps *newPlayer, playerListDataProps *playersList);
-cardDataProps *getCardFromDeck(deckOfCardsDataPros *deck);
-int shuffleDeck(deckOfCardsDataPros *deck, int quantity);
-int verifyCardExistInDiscard(cardDataProps *card, discardListDataProps *discard);
-int insertCardInDiscard(cardDataProps *card, discardListDataProps *discard);
-int insertCardInPalyerDeck(playerDataProps *player, cardDataProps *card);
-playerDataProps *verifyIfCardExistInOtherPalyersDeck(playerDataProps *player, int cardValue, int *result);
-int getDeckFromAnotherPlayer(playerDataProps *playerWhoWillRecive, playerDataProps *playerWhoWillDonate);
-int verifyIfCardExistInPlayerDeck(playerDataProps *player, int cardValue);
+cardDataProps *createNewCard(int value, int suit); // cria uma nova carta
+cardDataProps *getCardFromDeck(deckOfCardsDataPros *deck); // pega uma carta do baralho;
+cardDataProps *getCardFromDiscard(discardListDataProps *discard, int CardValue); // pega uma carta do discarte;
 
-void printCard(cardDataProps *card);
-void orderWinnerList(playerDataProps *winnerList, playerListDataProps *playersList, int quantity);
+discardListDataProps *createDiscardList(); // cria a lista de discarte;
 
-void insertionSortWinnerPlayerCards(cardDataProps winnerCards[], int size);
-void inserStackOfCardsInWinnerRankingCardList(playerDataProps winnerPlayer, cardDataProps winnerRankingCardList[]);
+playerListDataProps *createAListOfPlayers(); // cria a lista de jogadores;
+playerDataProps *verifyIfCardExistInOtherPalyersDeck(playerDataProps *player, int cardValue, int *result); // verifica se a carta existe no monte de outros jogsdores
+
+int insertCardInDaeck(cardDataProps *card, deckOfCardsDataPros *deck); // insere uma nova carta no baralho;
+
+int createNewPlayer(char name[], playerListDataProps *playersList); // cria um novo jogador;
+
+int insertNewPlayerInList(playerDataProps *newPlayer, playerListDataProps *playersList); //insere um novo jogador na lista;
+
+int shuffleDeck(deckOfCardsDataPros *deck, int quantity); // embaralha o baralho; 
+
+int verifyCardExistInDiscard(cardDataProps *card, discardListDataProps *discard); // verifica se a carta retirada existe no discarte;
+
+int insertCardInDiscard(cardDataProps *card, discardListDataProps *discard); // insere a carta no discarte
+
+int insertCardInPalyerDeck(playerDataProps *player, cardDataProps *card); //insere a carta no monte do jogador;
+
+int getDeckFromAnotherPlayer(playerDataProps *playerWhoWillRecive, playerDataProps *playerWhoWillDonate); // rouba o monte de outro jogador
+
+int verifyIfCardExistInPlayerDeck(playerDataProps *player, int cardValue); // verifica se a carta existe no monte do jogador atual
+
+void printCard(cardDataProps *card); // imptime a carta
+
+void orderWinnerList(playerDataProps *winnerList, playerListDataProps *playersList, int quantity); // ordena o ranking de jogadores; 
+
+void insertionSortWinnerPlayerCards(cardDataProps winnerCards[], int size); // ordena o vetor de cartas do vencedor
+
+void inserStackOfCardsInWinnerRankingCardList(playerDataProps winnerPlayer, cardDataProps winnerRankingCardList[]); // insere as cartas do vencedor em um vetor;
+
+void freePlayerList(playerListDataProps *playerList); // libera a lista e o monte dos jogadores
+
+void freeDeckOfCards(deckOfCardsDataPros *deckOfCards); // libera o baralho;
+
+void freeDiscardList(discardListDataProps *discardList);
+
 
 
 int main()
@@ -110,25 +130,26 @@ int main()
     printf("Digite a quantidade de jogadores: ");
     scanf("%d", &playerQuantity);
 
-    if (playerQuantity < 1)
+    if (playerQuantity < 2)
     {
-      printf("Digite uma quantidade valida!");
+      printf("O jogo deve conter no minimo 2 jogadores!");
       Sleep(2000);
-      system("cls");
     }
-  } while (playerQuantity < 1);
 
-  system("cls");
+    system("cls");
+  } while (playerQuantity < 2);
+
 
   for (int i = 1; i <= playerQuantity; i++)
-  {
+  { 
+    
     printf("Digite o nome do jogador: ");
     setbuf(stdin, NULL);
     gets(playerName);
 
     success = createNewPlayer(playerName, playersList);
 
-    if (success == 1)
+    if(success == 1)
     {
       printf("Jogador %s criado com sucesso!\n", playerName);
       Sleep(1000);
@@ -140,10 +161,17 @@ int main()
     }
   };
 
-  printf("Digite a quantidade de baralhos: ");
-  scanf("%d", &quantity);
+  do{
+    printf("Digite a quantidade de baralhos: ");
+    scanf("%d", &quantity);
 
-  system("cls");
+    if(quantity < 1){
+      printf("O jogo deve conter pelo menos um baralho!\n");
+      Sleep(1000);
+    }
+
+    system("cls");
+  }while(quantity < 1);
 
   deck = createDecks(quantity);
 
@@ -350,6 +378,12 @@ int main()
     }
   }
 
+  freePlayerList(playersList);
+  freeDeckOfCards(deck);
+  freeDiscardList(discardList);
+  free(listOfWinners);
+  free(winnerRankingCardList);
+
   return 0;
 };
 
@@ -492,7 +526,7 @@ int shuffleDeck(deckOfCardsDataPros *deck, int quantity)
 
   while (size > 1)
   {
-    i = (rand() % (51 * quantity)) + (1 * quantity);
+    i = (rand() % (51 * quantity)) + (1 * quantity); // sorteia um numero aleatorio 
 
     current = deck->first;
     preview = deck->first;
@@ -503,7 +537,7 @@ int shuffleDeck(deckOfCardsDataPros *deck, int quantity)
       preview = current;
       current = current->next;
       j++;
-    }
+    } // percorre a pilha ate achar a carta que esta na posicao sorteada 
 
     if (i > 1)
     {
@@ -544,21 +578,8 @@ int insertCardInDiscard(cardDataProps *card, discardListDataProps *discard)
 {
   int success = 1;
 
-  card->next = NULL;
-
-  if (discard->first == NULL)
-  {
-    discard->first = card;
-  }
-  else
-  {
-    cardDataProps *aux = discard->first;
-    while (aux->next != NULL)
-    {
-      aux = aux->next;
-    }
-    aux->next = card;
-  }
+  card->next = discard->first;
+  discard->first = card;
 
   return success;
 };
@@ -792,4 +813,45 @@ void inserStackOfCardsInWinnerRankingCardList(playerDataProps winnerPlayer, card
 
   insertionSortWinnerPlayerCards(winnerRankingCardList, winnerPlayer.deck->quantity); // ORDENA O VETOR DE CARTAS DO JOGADOR VENCEDOR
 
+};
+
+void freePlayerList(playerListDataProps *playerList){
+  playerDataProps *aux;
+
+  while(playerList->first != NULL){
+    aux = playerList->first;
+    playerList->first = aux->next;
+
+    freeDeckOfCards(aux->deck);
+
+    aux->next = NULL;
+
+    free(aux);
+  };
+
+  free(playerList);
+};
+
+void freeDeckOfCards(deckOfCardsDataPros *deckOfCards){
+  cardDataProps *aux;
+
+  while(deckOfCards->first != NULL){
+    aux = deckOfCards->first;
+    deckOfCards->first = aux->next;
+    aux->next = NULL;
+    free(aux);
+  }
+  free(deckOfCards);
+};
+
+void freeDiscardList(discardListDataProps *discardList){
+  cardDataProps *aux;
+
+  while(discardList->first != NULL){
+    aux = discardList->first;
+    discardList->first = aux->next;
+    aux->next = NULL;
+    free(aux);
+  }
+  free(discardList);
 };
