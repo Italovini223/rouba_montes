@@ -224,7 +224,7 @@ int main()
 
     printf("QUANTIDADE DE CARTAS NO BARALHO: %d\n", deck->quantity);
 
-    printf("JOGADOR %s SUA CARTA E: \n", currentPlayer->name);
+    printf("JOGADOR %s SUA CARTA E: ", currentPlayer->name);
 
     if (success == 1) // verificar se e necessario
     {
@@ -236,7 +236,7 @@ int main()
       {
         auxDiscardList = discardList->first;
 
-        printf("\nINICIO LISTA DE DISCARTE\n");
+        printf("\n\nINICIO LISTA DE DISCARTE\n");
 
         while (auxDiscardList != NULL)
         {
@@ -245,16 +245,16 @@ int main()
           auxDiscardList = auxDiscardList->next;
         }
 
-        printf("\n FIM DA LISTA DE DISCARTE\n");
+        printf("\nFIM DA LISTA DE DISCARTE\n\n");
       };
 
       if (currentPlayer->deck->first != NULL)
       { // IMPRIME A CARTA NO TOPO DO JOGADOR ATUAL
-        printf("SUA CARTA NO TOPO: ");
+        printf("\nSUA CARTA NO TOPO: ");
         printCard(currentPlayer->deck->first);
       }
 
-      auxPlayer = currentPlayer->next;
+      auxPlayer = currentPlayer->next; // Recebe o proximo jogador para imprir o topo do monte dos outro jogadores 
 
       while (auxPlayer != currentPlayer)
       { // IMPRIME O TOPO DO MONTE DE CADA JOGADOR
@@ -309,13 +309,13 @@ int main()
 
           if (success == 1)
           {
-            printf("MONTE DO JOGADOR %s roubado com sucesso\n", playerWhoWillDonateCards->name);
+            printf("MONTE DO JOGADOR %s ROUADO COM SUCESSO\n", playerWhoWillDonateCards->name);
           }
         }
       }
       else if (verifyIfCardExistInPlayerDeck(currentPlayer, card->value))
       {
-        do
+        do  
         {
           printf("\nSua carta do topo e igual a carta que voce tirou! \n");
           printf("(1) INSERIR CARTA NO SEU MONTE");
@@ -353,11 +353,10 @@ int main()
 
   for (int i = 0; i < playerQuantity; i++)
   { // IMPRIME O RANKING DE JOGADORES
-    printf("POSICAO %d: ", i + 1);
+    printf("\nPOSICAO %d: \n", i + 1);
     printf("Nome : %s\n", listOfWinners[i].name);
-    printf("Quantidade final de cartas: %d", listOfWinners[i].deck->quantity);
+    printf("Quantidade final de cartas: %d\n", listOfWinners[i].deck->quantity);
 
-    printf("\n");
   }
 
   winnerRankingCardList = (cardDataProps *)malloc(listOfWinners[0].deck->quantity * sizeof(cardDataProps)); // aloca memoria para a quantidade de cartas do primeiro colocado do ranking
