@@ -343,7 +343,7 @@ int main()
       printf("CARTAS DO JOGADOR %s ORDENADAS: \n", listOfWinners[i].name);
       for (int j = 0; j < listOfWinners[i].deck->quantity; j++)
       {
-        printCard(&winnerRankingCardList[i]);
+        printCard(&winnerRankingCardList[j]);
       }
 
       printf("\n\n");
@@ -748,7 +748,6 @@ void insertionSortPlayersRanking(playerDataProps vector[], int size){
     vector[j + 1] = aux;
   }
 }
-
 
 void orderWinnerList(playerDataProps *winnerList, playerListDataProps *playersList, int quantity)
 {
