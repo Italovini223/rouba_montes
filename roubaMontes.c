@@ -230,7 +230,7 @@ int main()
     {
       printCard(card);
 
-      printf("VOCE TEM %d NO SEU MONTE\n", currentPlayer->deck->quantity); // MOSTRA A QUANTIDADE DE CARTAS O JOGADOR TEM NO SEU MONTE
+      printf("\nVOCE TEM %d NO SEU MONTE\n", currentPlayer->deck->quantity); // MOSTRA A QUANTIDADE DE CARTAS O JOGADOR TEM NO SEU MONTE
 
       if (discardList->first != NULL) // IMPRIME A LISTA DE DISCARTE
       {
@@ -250,7 +250,7 @@ int main()
 
       if (currentPlayer->deck->first != NULL)
       { // IMPRIME A CARTA NO TOPO DO JOGADOR ATUAL
-        printf("SUA CARTA NO TOPO: \n");
+        printf("SUA CARTA NO TOPO: ");
         printCard(currentPlayer->deck->first);
       }
 
@@ -260,7 +260,7 @@ int main()
       { // IMPRIME O TOPO DO MONTE DE CADA JOGADOR
         if (auxPlayer->deck->first != NULL)
         { // SO IMPRIME SE ESTIVER CARTA NO TOPO
-          printf("TOPO DO MONTE DO JOGADOR %s", auxPlayer->name);
+          printf("\nTOPO DO MONTE DO JOGADOR %s: ", auxPlayer->name);
           printCard(auxPlayer->deck->first);
         }
         auxPlayer = auxPlayer->next;
@@ -273,7 +273,7 @@ int main()
       {
         do
         {
-          printf("(1) pegar carta do discarte\n");
+          printf("\n(1) pegar carta do discarte\n");
           printf("Selecione sua opcao: ");
           scanf("%d", &option);
         } while (option != 1);
@@ -288,7 +288,7 @@ int main()
 
             if (success == 1)
             {
-              printf("Jogador %s carta adicionada ao seu monte\n", currentPlayer->name);
+              printf("\nJogador %s carta adicionada ao seu monte\n", currentPlayer->name);
             }
           }
         }
@@ -297,7 +297,7 @@ int main()
       {
         do
         {
-          printf("(1) pegar monte do jogador %s\n", playerWhoWillDonateCards->name);
+          printf("\n(1) pegar monte do jogador %s\n", playerWhoWillDonateCards->name);
           printf("Selecione sua opcao: ");
           scanf("%d", &option);
         } while (option != 1);
@@ -317,7 +317,7 @@ int main()
       {
         do
         {
-          printf("Sua carta do topo e igual a carta que voce tirou! \n");
+          printf("\nSua carta do topo e igual a carta que voce tirou! \n");
           printf("(1) INSERIR CARTA NO SEU MONTE");
           printf("Selecione sua opcao: ");
           scanf("%d", &option);
@@ -335,7 +335,7 @@ int main()
       }
       else
       {
-        printf("Nao e possivel fazer nada com sua carta, ela foi inserida no discarte, pressione qualquer tecla para continuar o jogo!\n");
+        printf("\nNao e possivel fazer nada com sua carta, ela foi inserida no discarte, pressione qualquer tecla para continuar o jogo!\n");
         scanf("%d", &option);
         insertCardInDiscard(card, discardList);
         currentPlayer = currentPlayer->next;
@@ -726,7 +726,7 @@ void printCard(cardDataProps *card)
     break;
   };
 
-  printf("  |\n|     |\n+-----+\n");
+  printf("  |\n|     |\n+-----+ ");
 };
 
 int verifyIfCardExistInPlayerDeck(playerDataProps *player, int cardValue)
