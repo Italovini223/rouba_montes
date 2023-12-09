@@ -544,21 +544,8 @@ int insertCardInDiscard(cardDataProps *card, discardListDataProps *discard)
 {
   int success = 1;
 
-  card->next = NULL;
-
-  if (discard->first == NULL)
-  {
-    discard->first = card;
-  }
-  else
-  {
-    cardDataProps *aux = discard->first;
-    while (aux->next != NULL)
-    {
-      aux = aux->next;
-    }
-    aux->next = card;
-  }
+  card->next = discard->first;
+  discard->first = card;
 
   return success;
 };
