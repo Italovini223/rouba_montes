@@ -74,6 +74,9 @@ void orderWinnerList(playerDataProps *winnerList, playerListDataProps *playersLi
 
 void insertionSortWinnerPlayerCards(cardDataProps winnerCards[], int size);
 void inserStackOfCardsInWinnerRankingCardList(playerDataProps winnerPlayer, cardDataProps winnerRankingCardList[]);
+void freePlayerList(playerListDataProps *playerList);
+void freeDeckOfCards(deckOfCardsDataPros *deckOfCards);
+
 
 
 int main()
@@ -349,6 +352,11 @@ int main()
       printf("\n\n");
     }
   }
+
+  freePlayerList(playersList);
+  freeDeckOfCards(deck);
+  free(listOfWinners);
+  free(winnerRankingCardList);
 
   return 0;
 };
@@ -780,3 +788,31 @@ void inserStackOfCardsInWinnerRankingCardList(playerDataProps winnerPlayer, card
   insertionSortWinnerPlayerCards(winnerRankingCardList, winnerPlayer.deck->quantity); // ORDENA O VETOR DE CARTAS DO JOGADOR VENCEDOR
 
 };
+
+void freePlayerList(playerListDataProps *playerList){
+  playerDataProps *aux;
+
+  while(playerList->first != NULL){
+    aux = playerList->first;
+    playerList->first = aux->next;
+
+    freeDeckOfCards(aux->deck);
+
+    aux->next = NULL;
+
+    free(aux);
+  };
+};
+
+void freeDeckOfCards(deckOfCardsDataPros *deckOfCards){
+  cardDataProps *aux;
+
+  while(deckOfCards->first != NULL){
+    aux = deckOfCards->first;
+    deckOfCards->first = aux->next;
+    aux->next = NULL;
+    free(aux);
+  }
+
+};
+
