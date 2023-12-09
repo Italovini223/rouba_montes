@@ -130,25 +130,26 @@ int main()
     printf("Digite a quantidade de jogadores: ");
     scanf("%d", &playerQuantity);
 
-    if (playerQuantity < 1)
+    if (playerQuantity < 2)
     {
-      printf("Digite uma quantidade valida!");
+      printf("O jogo deve conter no minimo 2 jogadores!");
       Sleep(2000);
-      system("cls");
     }
-  } while (playerQuantity < 1);
 
-  system("cls");
+    system("cls");
+  } while (playerQuantity < 2);
+
 
   for (int i = 1; i <= playerQuantity; i++)
-  {
+  { 
+    
     printf("Digite o nome do jogador: ");
     setbuf(stdin, NULL);
     gets(playerName);
 
     success = createNewPlayer(playerName, playersList);
 
-    if (success == 1)
+    if(success == 1)
     {
       printf("Jogador %s criado com sucesso!\n", playerName);
       Sleep(1000);
@@ -160,10 +161,17 @@ int main()
     }
   };
 
-  printf("Digite a quantidade de baralhos: ");
-  scanf("%d", &quantity);
+  do{
+    printf("Digite a quantidade de baralhos: ");
+    scanf("%d", &quantity);
 
-  system("cls");
+    if(quantity < 1){
+      printf("O jogo deve conter pelo menos um baralho!\n");
+      Sleep(1000);
+    }
+
+    system("cls");
+  }while(quantity < 1);
 
   deck = createDecks(quantity);
 
@@ -372,7 +380,7 @@ int main()
 
   freePlayerList(playersList);
   freeDeckOfCards(deck);
-  freeDeckOfCards(discardList);
+  freeDiscardList(discardList);
   free(listOfWinners);
   free(winnerRankingCardList);
 
