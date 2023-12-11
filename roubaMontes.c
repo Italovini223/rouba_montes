@@ -288,7 +288,7 @@ int main()
 
             if (success == 1)
             {
-              printf("\nJogador %s carta adicionada ao seu monte\n", currentPlayer->name);
+              printf("\nJogador %s carta(s) adicionada ao seu monte\n", currentPlayer->name);
             }
           }
         }
@@ -319,7 +319,7 @@ int main()
         {
           printf("\nSua carta do topo e igual a carta que voce tirou! \n");
           printf("(1) INSERIR CARTA NO SEU MONTE");
-          printf("Selecione sua opcao: ");
+          printf("\nSelecione sua opcao: ");
           scanf("%d", &option);
         } while (option != 1);
 
@@ -335,7 +335,7 @@ int main()
       }
       else
       {
-        printf("\nNao e possivel fazer nada com sua carta, ela foi inserida no discarte, pressione qualquer tecla para continuar o jogo!\n");
+        printf("\nNao e possivel fazer nada com sua carta, ela foi inserida no discarte, pressione qualquer numero e tecle enter para continuar o jogo!\n");
         scanf("%d", &option);
         insertCardInDiscard(card, discardList);
         currentPlayer = currentPlayer->next;
@@ -367,7 +367,7 @@ int main()
     {
       inserStackOfCardsInWinnerRankingCardList(listOfWinners[i], winnerRankingCardList); // ADICIONA AS CARTAS DO JOGADOR AO VETOR E LA DENTRO ORDENA AS CARTAS DE ACORDO COM SEU VALOR
       
-      printf("CARTAS DO JOGADOR %s ORDENADAS: \n", listOfWinners[i].name);
+      printf("\nCARTAS DO JOGADOR %s ORDENADAS: \n", listOfWinners[i].name);
       for (int j = 0; j < listOfWinners[i].deck->quantity; j++)
       {
         printCard(&winnerRankingCardList[j]);
@@ -803,10 +803,10 @@ void inserStackOfCardsInWinnerRankingCardList(playerDataProps winnerPlayer, card
   cardDataProps *aux = winnerPlayer.deck->first;
   int i = 0;
 
-  while (aux != NULL && i < winnerPlayer.deck->quantity) {
+  while (aux != NULL && i < winnerPlayer.deck->quantity) { // JOGAS TODOS OS JOGADORES EM UM VETOR
     winnerRankingCardList[i] = *aux;
     aux = aux->next;
-    winnerRankingCardList[i].next = NULL; // Certifique-se de que o próximo seja nulo no vetor
+    winnerRankingCardList[i].next = NULL; 
     i++;
   }
 
