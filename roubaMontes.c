@@ -930,8 +930,6 @@ void freePlayerList(playerListDataProps *playerList)
   // Liberar a estrutura playerList se ela foi alocada dinamicamente
   free(playerList);
 
-  printf("LIBEROU TUDO");
-
 }
 
 void freeDeckOfCards(deckOfCardsDataPros *deckOfCards)
