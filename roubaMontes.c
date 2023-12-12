@@ -291,7 +291,7 @@ int main()
 
             if (success == 1)
             {
-              printf("\nJogador %s carta(s) adicionada ao seu monte\n", currentPlayer->name);
+              printf("\nJogador %s cartas adicionada ao seu monte\n", currentPlayer->name);
             }
           }
         }
@@ -398,8 +398,6 @@ int main()
         printf("\n\n");
         fprintf(rankingFile, "\n\n");
       }
-
-      printf("\nI => %d\n", i);
     }
 
   }
@@ -415,6 +413,8 @@ int main()
   free(listOfWinners);
 
   free(winnerRankingCardList);
+
+  free(card);
 
   return 0;
 };
